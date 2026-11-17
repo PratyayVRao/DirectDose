@@ -1,162 +1,237 @@
-/* Meal ideas for today. Picks follow the diabetes plate method and published nutrition guidance:
-   steady carbs per meal, more fiber, lower glycemic index, enough protein. Personal data tunes the picks.
-   [name, slot b/l/d/s, cuisine, contains (m meat, p pork, b beef, f fish, e egg, d dairy, g gluten, n nuts),
-    carbs, fiber, protein, fat, glycemic index 1 low / 2 medium / 3 high, what's on the plate] */
+/* Today's meals. Picks a breakfast, lunch, snack and dinner that together meet daily nutrition goals.
+   Default goals follow the Dietary Guidelines for Americans 2025-2030 and the FDA Daily Values on food labels.
+   The plan also leans toward low glycemic index foods, more so when the account's own test meals ran high,
+   and shows the carb dose for each meal at the account's own carb ratio. */
 (function () {
 'use strict';
-const MEALS = [
-["Ragi dosa with sambar","b","South Indian","",38,7,10,6,1,"2 ragi dosas, 1 cup sambar"],
-["Idli with sambar and chutney","b","South Indian","",45,6,11,5,2,"3 idlis, 1 cup sambar, coconut chutney"],
-["Vegetable upma","b","South Indian","g",40,5,8,9,2,"1 cup upma with peas and carrots"],
-["Pesarattu with ginger chutney","b","South Indian","",30,8,13,6,1,"2 green gram dosas, chutney"],
-["Moong dal chilla","b","North Indian","",28,8,14,7,1,"2 chillas, mint chutney"],
-["Poha with peanuts and peas","b","North Indian","n",46,4,8,9,2,"1 cup poha, peanuts, peas, lemon"],
-["Oatmeal with berries and walnuts","b","American","gn",38,8,9,11,1,"1 cup cooked oats, berries, walnuts"],
-["Greek yogurt with berries and seeds","b","American","d",26,5,20,6,1,"plain Greek yogurt, berries, chia seeds"],
-["Veggie omelet with whole wheat toast","b","American","eg",28,5,20,16,1,"2-egg omelet with vegetables, 2 slices toast"],
-["Avocado toast with egg","b","American","eg",30,8,14,18,1,"2 slices whole grain toast, avocado, 1 egg"],
-["Tofu scramble with vegetables and toast","b","American","g",30,6,20,12,1,"tofu, peppers, spinach, 2 slices toast"],
-["Chia pudding with fruit","b","American","",28,12,8,12,1,"chia in soy milk, sliced fruit"],
-["Huevos rancheros","b","Mexican","e",34,9,18,16,1,"2 eggs, 2 corn tortillas, black beans, salsa"],
-["Shakshuka with pita","b","Middle Eastern","eg",36,6,17,14,1,"2 eggs in tomato sauce, 1 small pita"],
-["Congee with egg and greens","b","East Asian","e",40,2,12,6,3,"1.5 cups congee, egg, bok choy"],
-["Ragi mudde with soppu saaru","l","South Indian","",48,9,12,5,1,"1 ragi ball, greens and lentil curry, salad"],
-["Sambar rice with palya","l","South Indian","",55,9,13,8,2,"1 cup rice with sambar, cabbage palya, cucumber"],
-["Curd rice with vegetable palya","l","South Indian","d",45,5,10,8,2,"1 cup curd rice, beans palya"],
-["Chapati, dal, and sabzi","l","North Indian","g",50,12,17,10,1,"2 chapatis, 1 cup dal, mixed vegetables"],
-["Rajma with brown rice","l","North Indian","",58,14,16,6,1,"1 cup rajma, 3/4 cup brown rice, salad"],
-["Chicken curry with chapati and salad","l","North Indian","mg",32,6,32,14,1,"1 cup chicken curry, 1 chapati, salad"],
-["Grilled chicken salad with quinoa","l","American","m",32,7,36,14,1,"chicken, greens, 3/4 cup quinoa"],
-["Turkey and veggie whole wheat wrap","l","American","mg",38,6,28,11,1,"1 wrap, turkey, lettuce, tomato, side of fruit"],
-["Tuna salad on whole grain bread","l","American","feg",30,5,26,14,1,"tuna sandwich, carrot sticks"],
-["Black bean burrito bowl","l","Mexican","",55,15,17,10,1,"brown rice, black beans, fajita vegetables, salsa"],
-["Chicken tacos on corn tortillas","l","Mexican","m",36,6,30,12,2,"3 small tacos, cabbage, salsa"],
-["Lentil soup with side salad","l","Mediterranean","",40,15,18,6,1,"1.5 cups lentil soup, green salad"],
-["Greek salad with chickpeas and feta","l","Mediterranean","d",30,9,15,18,1,"big salad, 1/2 cup chickpeas, feta"],
-["Falafel bowl","l","Middle Eastern","g",48,12,16,18,1,"4 falafel, hummus, salad, 1/2 pita"],
-["Tofu and vegetable stir-fry with brown rice","l","East Asian","g",48,7,20,12,1,"tofu, mixed vegetables, 3/4 cup brown rice"],
-["Salmon rice bowl with edamame","l","East Asian","f",45,6,32,16,2,"salmon, 3/4 cup rice, edamame, cucumber"],
-["Jollof rice with grilled chicken and greens","l","African","m",52,5,30,12,2,"1 cup jollof, chicken, sautéed greens"],
-["Bisi bele bath with salad","d","South Indian","",52,9,13,10,2,"1.25 cups bisi bele bath, kosambari salad"],
-["Jowar roti with ennegayi","d","South Indian","n",44,10,10,14,1,"2 jowar rotis, stuffed brinjal curry, salad"],
-["Grilled fish with palya and rice","d","South Indian","f",35,5,32,10,2,"fish, vegetable palya, 1/2 cup rice"],
-["Palak paneer with rotis","d","North Indian","dg",40,8,22,20,1,"1 cup palak paneer, 2 rotis"],
-["Chana masala with brown rice","d","North Indian","",56,14,16,9,1,"1 cup chana, 3/4 cup brown rice"],
-["Tandoori chicken, dal, and salad","d","North Indian","md",26,9,40,12,1,"2 pieces chicken, 1 cup dal, salad"],
-["Baked salmon, roasted vegetables, quinoa","d","American","f",34,7,36,18,1,"salmon, vegetables, 3/4 cup quinoa"],
-["Turkey chili with beans","d","American","m",32,11,30,10,1,"1.5 cups chili, side salad"],
-["Chicken fajitas","d","Mexican","m",38,7,32,14,2,"chicken, peppers, onions, 3 corn tortillas"],
-["Whole wheat pasta with vegetables and chickpeas","d","Mediterranean","g",55,12,18,10,1,"1 cup pasta, vegetables, chickpeas, olive oil"],
-["Grilled chicken, Greek salad, small pita","d","Mediterranean","mdg",30,5,38,16,1,"chicken, salad with feta, 1/2 pita"],
-["Beef and broccoli with brown rice","d","East Asian","mbg",45,6,30,14,1,"beef, broccoli, 3/4 cup brown rice"],
-["Miso-glazed tofu with greens and rice","d","East Asian","g",46,6,22,12,2,"tofu, bok choy, 3/4 cup rice"],
-["Chicken shawarma plate with salad","d","Middle Eastern","m",34,7,36,16,1,"chicken, salad, hummus, 1/2 cup rice"],
-["Mujadara with cucumber salad","d","Middle Eastern","",54,13,17,10,1,"1.25 cups lentils and rice, salad"],
-["Bean and vegetable stew with injera","d","African","",50,12,16,7,1,"1 cup stew, 1 injera, greens"],
-["Egusi stew with a small portion of fufu","d","African","m",42,6,28,24,2,"1 cup egusi, 1/2 ball fufu, greens"],
-["Apple with peanut butter","s","American","n",22,5,5,9,1,"1 small apple, 1 tbsp peanut butter"],
-["Roasted chana","s","South Indian","",18,6,7,2,1,"1/4 cup roasted chickpeas"],
-["Sprouted moong salad","s","South Indian","",15,6,8,1,1,"1 cup sprouts, cucumber, lemon"],
-["Majjige and a small fruit","s","South Indian","d",18,2,5,2,1,"1 cup buttermilk, 1 small orange"],
-["Greek yogurt with berries","s","American","d",14,2,15,2,1,"3/4 cup yogurt, berries"],
-["Almonds and a clementine","s","American","n",14,4,6,14,1,"small handful almonds, 1 clementine"],
-["Whole grain crackers with cheese","s","American","dg",16,3,8,9,1,"5 crackers, 1 oz cheese"],
-["Hummus with carrots and cucumber","s","Mediterranean","",14,5,5,7,1,"1/4 cup hummus, vegetables"],
-["Guacamole with veggie sticks","s","Mexican","",12,7,3,13,1,"1/4 cup guacamole, peppers, jicama"],
-["Edamame","s","East Asian","",9,5,11,5,1,"3/4 cup edamame in pods"]
-];
-const DIETS = [['veg', 'Vegetarian', 'mpbf'], ['vegan', 'Vegan', 'mpbfed'], ['nopork', 'No pork', 'p'], ['nobeef', 'No beef', 'b'], ['nofish', 'No fish', 'f'], ['noegg', 'No egg', 'e'], ['df', 'Dairy-free', 'd'], ['gf', 'Gluten-free', 'g'], ['nf', 'Nut-free', 'n']];
-const CUISINES = [...new Set(MEALS.map(m => m[2]))];
-const SLOTS = [['b', 'Breakfast'], ['l', 'Lunch'], ['d', 'Dinner'], ['s', 'Snack']];
+const MEALS = window.MEALS || [];
 const { $, $$, fmt, esc, say, toast } = DD;
-const prefs = () => { const d = DD.data; d.prefs = Object.assign({ diet: [], cuisine: [], carb: 45, avoid: '', shuffle: {} }, d.prefs || {}); return d.prefs; };
-const rnd = seed => { let x = seed | 0; return () => { x = (x * 1664525 + 1013904223) | 0; return ((x >>> 0) % 1000) / 1000; }; };
+/* [id, label, which kind of meal fills it] */
+const SLOTS = [['b', 'Breakfast', 'b'], ['s1', 'Morning snack', 's'], ['l', 'Lunch', 'l'], ['s2', 'Afternoon snack', 's'], ['d', 'Dinner', 'd']];
+const DIETS = [['veg', 'Vegetarian', 'mpbf'], ['vegan', 'Vegan', 'mpbfed'], ['nopork', 'No pork', 'p'], ['nobeef', 'No beef', 'b'], ['nofish', 'No fish', 'f'], ['noegg', 'No egg', 'e'], ['df', 'Dairy-free', 'd'], ['gf', 'Gluten-free', 'g'], ['nf', 'Nut-free', 'n'], ['sf', 'Soy-free', 'y']];
+const CUISINES = [...new Set(MEALS.map(m => m[2]))];
+const PRIS = [['protein', 'More protein'], ['fiber', 'More fiber'], ['steady', 'Steady blood sugar'], ['lowcarb', 'Fewer carbs'], ['heart', 'Heart-healthy']];
+const CALS = [1600, 2000, 2400, 2800];
+const PORTION = { 0.75: '¾', 1: '1', 1.25: '1¼', 1.5: '1½', 1.75: '1¾', 2: '2' };
+const C = { carbs: 4, fiber: 5, prot: 6, fat: 7, sat: 8, sugar: 9, gi: 10, plate: 11 };
+
+const prefs = () => {
+  const d = DD.data;
+  d.prefs = Object.assign({ diet: [], cuisine: [], avoid: '', pri: [], cal: 2000, kg: null, unit: 'kg' }, d.prefs || {});
+  delete d.prefs.carb; delete d.prefs.shuffle;
+  return d.prefs;
+};
+const today = () => new Date().toDateString();
+const kcal = m => 4 * (m[C.carbs] - m[C.fiber]) + 2 * m[C.fiber] + 4 * m[C.prot] + 9 * m[C.fat];
+const rng = seed => { let x = seed | 0 || 1; return () => { x ^= x << 13; x ^= x >>> 17; x ^= x << 5; return ((x >>> 0) % 10000) / 10000; }; };
+const hash = s => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7);
 
 /* what the account's own data says */
 function profile() {
-  const d = DD.data, tests = (d.icr && d.icr.tests || []).filter(t => t.v), log = d.log || [];
-  const high = tests.filter(t => t.v === 'weak' || (t.bg2 != null && t.bg2 - t.bg0 > 80)).length;
+  const d = DD.data, tests = (d.icr && d.icr.tests || []).filter(t => t.v);
+  const spiky = tests.filter(t => t.v === 'weak' || (t.bg2 != null && t.bg2 - t.bg0 > 80)).length >= 2;
   const lows = tests.filter(t => t.v === 'low').length;
-  const meals = log.filter(l => l.carbs >= 15);
-  const usual = meals.length >= 5 ? Math.round(meals.reduce((s, l) => s + l.carbs, 0) / meals.length) : null;
-  return { icr: d.settings.icr || null, spiky: high >= 2, lows, usual, n: meals.length };
+  return { icr: d.settings.icr || null, spiky, lows };
+}
+function targets(p, pr) {
+  const cal = p.cal || 2000, k = p.kg || 70, pri = new Set(p.pri);
+  return {
+    cal, pri, kgKnown: !!p.kg,
+    protLo: Math.round((pri.has('protein') ? 1.4 : 1.2) * k), protHi: Math.round(1.6 * k),
+    fiber: Math.round(cal / 1000 * (pri.has('fiber') ? 17.5 : 14)),
+    carbMax: Math.round(cal * (pri.has('lowcarb') ? .40 : .55) / 4),
+    fatMax: Math.round(cal * .35 / 9),
+    satMax: Math.round(cal * (pri.has('heart') ? .07 : .10) / 9),
+    sugarMeal: 10,
+    wGI: 1 + (pri.has('steady') ? 2 : 0) + (pr.spiky ? 1 : 0)
+  };
 }
 function allowed(m, p) {
   const banned = DIETS.filter(d => p.diet.includes(d[0])).map(d => d[2]).join('');
   if ([...m[3]].some(c => banned.includes(c))) return false;
   const avoid = p.avoid.toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
-  const text = (m[0] + ' ' + m[9]).toLowerCase();
+  const text = (m[0] + ' ' + m[C.plate]).toLowerCase();
   return !avoid.some(a => text.includes(a));
 }
-function score(m, p, pr, recent) {
-  const target = m[1] === 's' ? 15 : p.carb;
-  let s = -Math.abs(m[4] - target) * (m[1] === 's' ? 2 : 1.2);
-  s += m[5] * (pr.spiky ? 2.4 : 1.5);
-  s += (m[8] === 1 ? 8 : m[8] === 2 ? 3 : -4) * (pr.spiky ? 1.6 : 1);
-  s += Math.min(m[6], 30) * .3;
-  if (p.cuisine.length && p.cuisine.includes(m[2])) s += 14;
-  if (recent.includes(m[0])) s -= 18;
-  return s;
-}
-function plan() {
-  const p = prefs(), pr = profile(), day = new Date().toDateString();
-  const hist = DD.data.mealHist || {}, recent = Object.keys(hist).filter(k => k !== day).slice(-2).flatMap(k => hist[k]);
-  const out = {};
-  SLOTS.forEach(([slot]) => {
-    const pool = MEALS.filter(m => m[1] === slot && allowed(m, p)).map(m => [score(m, p, pr, recent), m]).sort((a, b) => b[0] - a[0]);
-    if (!pool.length) { out[slot] = null; return; }
-    const top = pool.slice(0, Math.min(4, pool.length));
-    const seed = [...(day + slot)].reduce((a, c) => a * 31 + c.charCodeAt(0), 7) + (p.shuffle[day + slot] || 0) * 7919;
-    out[slot] = top[Math.floor(rnd(seed)() * top.length) % top.length][1];
+
+/* one day: three meals and two snacks. The meals share one portion size (up to 1½ servings) so calories land
+   near the goal; snacks double only when the day would still fall well short. */
+function evalDay(day, T, p) {
+  let main = 0, snack = 0;
+  day.forEach((m, i) => { if (SLOTS[i][2] === 's') snack += kcal(m); else main += kcal(m); });
+  const f = Math.min(1.5, Math.max(.75, Math.round((T.cal - snack) / main * 4) / 4));
+  const ks = f === 1.5 && main * 1.5 + snack < T.cal * .92 ? 2 : 1;
+  const k = day.map((m, i) => SLOTS[i][2] === 's' ? ks : f);
+  let c = 0, fib = 0, pr = 0, fat = 0, sat = 0, sugarMax = 0, cal = 0, P = 0;
+  day.forEach((m, i) => {
+    c += m[C.carbs] * k[i]; fib += m[C.fiber] * k[i]; pr += m[C.prot] * k[i]; fat += m[C.fat] * k[i]; sat += m[C.sat] * k[i]; cal += kcal(m) * k[i];
+    const mc = m[C.carbs] * k[i], ms = m[C.sugar] * k[i];
+    sugarMax = Math.max(sugarMax, ms);
+    P += Math.max(0, ms - T.sugarMeal) * 1.5;
+    P += (m[C.gi] - 1) * mc / 15 * T.wGI;
+    if (T.pri.has('steady') && SLOTS[i][2] !== 's') P += Math.max(0, mc - 60) * .4;
+    if (p.cuisine.length && !p.cuisine.includes(m[2])) P += 6;
   });
-  return { out, pr, p, day };
+  P += Math.abs(cal - T.cal) / T.cal * 60;
+  if (pr < T.protLo) P += (T.protLo - pr) * (T.pri.has('protein') ? 1.2 : .6);
+  if (pr > T.protHi * 1.15) P += (pr - T.protHi * 1.15) * .3;
+  if (fib < T.fiber) P += (T.fiber - fib) * (T.pri.has('fiber') ? 1.6 : .8);
+  if (c > T.carbMax) P += (c - T.carbMax) * (T.pri.has('lowcarb') ? .75 : .25);
+  if (T.pri.has('lowcarb')) P += c * .03;
+  if (fat > T.fatMax) P += (fat - T.fatMax) * .3;
+  if (sat > T.satMax) P += (sat - T.satMax) * (T.pri.has('heart') ? 3 : 1);
+  return { P, k, c, fib, pr, fat, sat, sugarMax, cal };
 }
-function render() {
-  const { out, pr, p, day } = plan();
-  DD.data.mealHist = Object.assign({}, DD.data.mealHist, { [day]: Object.values(out).filter(Boolean).map(m => m[0]) });
-  const keys = Object.keys(DD.data.mealHist); if (keys.length > 5) delete DD.data.mealHist[keys[0]];
+
+function prefilter(type, T, p, seed, avoidNames, size) {
+  const R = rng(seed);
+  return MEALS.filter(m => m[1] === type && allowed(m, p)).map(m => {
+    let s = (m[C.gi] - 1) * m[C.carbs] / 15 * T.wGI - m[C.fiber] * .6 - m[C.prot] * .12 + Math.max(0, m[C.sugar] - 10) * 1.5 + m[C.sat] * .25;
+    if (p.cuisine.length && !p.cuisine.includes(m[2])) s += 6;
+    if (avoidNames.has(m[0])) s += 14;
+    return [s + R() * 9, m];
+  }).sort((a, b) => a[0] - b[0]).slice(0, size).map(x => x[1]);
+}
+function bestDay(T, p, seed, avoidNames) {
+  const pools = SLOTS.map(([, , type], i) => prefilter(type, T, p, seed + (type === 's' ? 3 : i) * 977, avoidNames, type === 's' ? 8 : 10));
+  if (pools.some(x => !x.length)) return null;
+  const R = rng(seed + 5);
+  let best = null;
+  for (const b of pools[0]) for (const s1 of pools[1]) for (const l of pools[2]) for (const s2 of pools[3]) {
+    if (s1 === s2 && pools[1].length > 1) continue;
+    for (const d of pools[4]) {
+      const score = evalDay([b, s1, l, s2, d], T, p).P + R() * 2;
+      if (!best || score < best.score) best = { score, day: [b, s1, l, s2, d] };
+    }
+  }
+  return best.day;
+}
+
+/* the plan for today is kept until something changes */
+function planKey(p) { return JSON.stringify([p.diet, p.cuisine, p.avoid, p.pri, p.cal, p.kg]); }
+function getPlan(T, p, force) {
+  const d = DD.data, key = planKey(p), byName = n => MEALS.find(m => m[0] === n);
+  let plan = d.mealPlan;
+  if (!force && plan && plan.day === today() && plan.key === key) {
+    const day = SLOTS.map(([s]) => byName(plan.picks[s]));
+    if (day.every(m => m && allowed(m, p))) return day;
+  }
+  const old = plan && plan.day === today() && plan.seen ? plan : { seen: {}, n: 0 };
+  const n = (old.n || 0) + (force ? 1 : 0);
+  const recent = new Set(Object.values(d.mealRecent || {}).flat());
+  const avoidNames = new Set([...recent, ...(force && plan ? Object.values(plan.picks) : [])]);
+  const day = bestDay(T, p, hash(today() + key) + n * 7919, avoidNames);
+  if (!day) return null;
+  d.mealPlan = { day: today(), key, n, picks: Object.fromEntries(SLOTS.map(([s], i) => [s, day[i][0]])), seen: Object.fromEntries(SLOTS.map(([s], i) => [s, [...new Set([...(old.seen && old.seen[s] || []), day[i][0]])]])) };
+  return day;
+}
+function swap(slot) {
+  const p = prefs(), pr = profile(), T = targets(p, pr), d = DD.data, plan = d.mealPlan;
+  const i = SLOTS.findIndex(x => x[0] === slot), type = SLOTS[i][2], byName = n => MEALS.find(m => m[0] === n);
+  const day = SLOTS.map(([s]) => byName(plan.picks[s]));
+  const others = new Set(day.filter((m, j) => j !== i).map(m => m[0]));
+  let seen = new Set(plan.seen[slot] || []);
+  let pool = MEALS.filter(m => m[1] === type && allowed(m, p) && !seen.has(m[0]) && !others.has(m[0]));
+  if (!pool.length) { seen = new Set([day[i][0]]); pool = MEALS.filter(m => m[1] === type && allowed(m, p) && !seen.has(m[0]) && !others.has(m[0])); }
+  if (!pool.length) return toast('No other ' + SLOTS[i][1].toLowerCase() + ' fits your filters.');
+  const R = rng(Date.now() & 0xffff);
+  const best = pool.map(m => { const t = day.slice(); t[i] = m; return [evalDay(t, T, p).P + R() * 6, m]; }).sort((a, b) => a[0] - b[0])[0][1];
+  plan.picks[slot] = best[0]; plan.seen[slot] = [...seen, best[0]];
+  DD.save(); render(slot);
+}
+
+/* ---------- drawing ---------- */
+function goalRow(label, val, lo, hi, unit, kind) {
+  const max = (hi || lo) * 1.35, pct = Math.min(100, val / max * 100), a = lo ? lo / max * 100 : 0, b = hi ? Math.min(100, hi / max * 100) : 100;
+  const ok = kind === 'min' ? val >= lo * .97 : kind === 'max' ? val <= hi * 1.03 : val >= lo * .93 && val <= hi * 1.07;
+  const word = ok ? 'on track' : (kind === 'max' || (kind === 'range' && val > hi)) ? 'a bit high' : 'a bit low';
+  const goal = kind === 'min' ? 'at least ' + fmt(lo, 0) : kind === 'max' ? 'under ' + fmt(hi, 0) : fmt(lo, 0) + '–' + fmt(hi, 0);
+  return `<div class="goal ${ok ? 'ok' : 'off'}"><div class="g-top"><b>${label}</b><span>${fmt(val, 0)}${unit} <em>· goal ${goal}${unit}</em></span><i>${word}</i></div>
+    <div class="g-bar"><span class="g-zone" style="left:${a}%;width:${b - a}%"></span><span class="g-fill" style="width:${pct}%"></span></div></div>`;
+}
+function render(changed) {
+  const p = prefs(), pr = profile(), T = targets(p, pr);
+  $('#mealPri').innerHTML = PRIS.map(x => `<button class="pill ${p.pri.includes(x[0]) ? 'on' : ''}" data-pri="${x[0]}">${x[1]}</button>`).join('');
+  $('#mealCal').innerHTML = CALS.map(c => `<button class="${p.cal === c ? 'on' : ''}" data-cal="${c}">${c.toLocaleString('en-US')}</button>`).join('');
   $('#mealDiet').innerHTML = DIETS.map(d => `<button class="pill ${p.diet.includes(d[0]) ? 'on' : ''}" data-diet="${d[0]}">${d[1]}</button>`).join('');
   $('#mealCuisine').innerHTML = CUISINES.map(c => `<button class="pill ${p.cuisine.includes(c) ? 'on' : ''}" data-cuisine="${esc(c)}">${esc(c)}</button>`).join('');
-  $('#mealCarb').value = p.carb; $('#mealCarbOut').textContent = p.carb + ' g';
   if (document.activeElement !== $('#mealAvoid')) $('#mealAvoid').value = p.avoid;
-  const why = [];
-  why.push(pr.icr ? 'your ratio of 1 : ' + pr.icr : 'no saved ratio yet');
-  if (pr.usual) why.push('your logged meals average ' + pr.usual + ' g of carbs');
-  if (pr.spiky) why.push('your test meals ran high, so today leans on fiber and slower carbs');
-  if (pr.lows) why.push(pr.lows + ' low' + (pr.lows > 1 ? 's' : '') + ' in your tests');
-  $('#mealWhy').textContent = 'Built from ' + why.join(', ') + '.';
-  $('#mealUsual').hidden = !(pr.usual && Math.abs(pr.usual - p.carb) >= 8);
-  if (pr.usual) $('#mealUsual').textContent = 'Match my usual ' + pr.usual + ' g';
-  let tc = 0, tf = 0, tp = 0;
-  $('#mealPlan').innerHTML = SLOTS.map(([slot, label]) => {
-    const m = out[slot];
-    if (!m) return `<article class="meal card"><p class="result-label">${label}</p><h4>Nothing fits those filters</h4><p class="fine">Loosen a filter or clear the foods to skip.</p></article>`;
-    tc += m[4]; tf += m[5]; tp += m[6];
-    const dose = pr.icr ? DD.floorTo(m[4] / pr.icr, .5) : null;
-    const tags = [m[8] === 1 ? 'slow carbs' : m[8] === 2 ? 'medium-speed carbs' : 'fast carbs', m[5] >= 8 ? 'high fiber' : null, m[6] >= 25 ? 'high protein' : null, m[7] >= 20 ? 'higher fat: watch for a late rise' : null].filter(Boolean);
-    return `<article class="meal card sk" data-slot="${slot}"><p class="result-label">${label} · ${esc(m[2])}</p><h4>${esc(m[0])}</h4><p class="plate-desc">${esc(m[9])}</p>
-      <div class="macros"><div><b>${m[4]}</b><span>g carbs</span></div><div><b>${m[5]}</b><span>g fiber</span></div><div><b>${m[6]}</b><span>g protein</span></div><div><b>${dose == null ? '–' : fmt(dose, 1)}</b><span>${dose == null ? 'set a ratio' : 'units for carbs'}</span></div></div>
+  if (document.activeElement !== $('#mealKg')) $('#mealKg').value = p.kg ? Math.round(p.unit === 'lb' ? p.kg * 2.20462 : p.kg) : '';
+  $('#mealKgUnit').textContent = p.unit;
+
+  const day = getPlan(T, p, changed === 'new');
+  if (!day) {
+    $('#mealPlan').innerHTML = '<div class="card"><h4>Nothing fits those filters</h4><p class="fine">Loosen a filter or clear the foods to skip.</p></div>';
+    $('#mealGoals').innerHTML = ''; return;
+  }
+  DD.data.mealRecent = Object.assign({}, DD.data.mealRecent, { [today()]: day.map(m => m[0]) });
+  const ks = Object.keys(DD.data.mealRecent); if (ks.length > 4) delete DD.data.mealRecent[ks[0]];
+  DD.save();
+
+  const e = evalDay(day, T, p);
+  const short = T.cal - e.cal;
+  $('#mealGoals').innerHTML = `<div class="row-between"><h4>Today vs your goals</h4><span class="fine">${fmt(e.cal, 0)} of ${T.cal.toLocaleString('en-US')} calories</span></div>
+    ${short > T.cal * .08 ? `<p class="fine">About ${fmt(Math.round(short / 50) * 50, 0)} calories short. Add a side like fruit, yogurt, or a handful of nuts.</p>` : ''}
+    ${goalRow('Protein', e.pr, T.protLo, T.protHi, ' g', 'range')}
+    ${goalRow('Fiber', e.fib, T.fiber, null, ' g', 'min')}
+    ${goalRow('Carbs', e.c, null, T.carbMax, ' g', 'max')}
+    ${goalRow('Fat', e.fat, null, T.fatMax, ' g', 'max')}
+    ${goalRow('Saturated fat', e.sat, null, T.satMax, ' g', 'max')}
+    ${goalRow('Added sugar, most in one meal', e.sugarMax, null, T.sugarMeal, ' g', 'max')}
+    ${T.kgKnown ? '' : '<p class="fine">Protein goal is for a 70 kg adult. Add your weight to set yours.</p>'}`;
+
+  let units = 0;
+  $('#mealPlan').innerHTML = day.map((m, i) => {
+    const [slot, label] = SLOTS[i], k = e.k[i], c = Math.round(m[C.carbs] * k);
+    const small = SLOTS[i][2] === 's';
+    const dose = pr.icr ? DD.floorTo(c / pr.icr, .5) : null; if (dose != null) units += dose;
+    const tags = [m[C.gi] === 1 ? 'slow carbs' : m[C.gi] === 2 ? 'medium-speed carbs' : 'fast carbs', m[C.fiber] * k >= 8 ? 'high fiber' : null, m[C.prot] * k >= 25 ? 'high protein' : null, m[C.fat] * k >= 25 || m[C.prot] * k >= 40 ? 'rich meal: blood sugar may rise late' : null].filter(Boolean);
+    return `<article class="meal card sk${small ? ' snack' : ''}" data-slot="${slot}"><p class="result-label">${label} · ${esc(m[2])}</p><h4>${esc(m[0])}</h4>
+      <p class="plate-desc">${k !== 1 ? `<b class="portion">${PORTION[k]} servings</b> of ` : ''}${esc(m[C.plate])}</p>
+      <div class="macros"><div><b>${c}</b><span>g carbs</span></div><div><b>${Math.round(m[C.fiber] * k)}</b><span>g fiber</span></div><div><b>${Math.round(m[C.prot] * k)}</b><span>g protein</span></div><div><b>${dose == null ? '–' : fmt(dose, 1)}</b><span>${dose == null ? 'find your ratio' : 'units for carbs'}</span></div></div>
       <p class="fine">${tags.join(' · ')}</p>
       <div class="row-between"><button class="btn sk small" data-swap="${slot}">Swap</button><button class="btn sk small primary" data-use="${slot}">Dose this meal</button></div></article>`;
   }).join('');
-  $('#mealTotals').textContent = 'Today: ' + tc + ' g carbs, ' + tf + ' g fiber, ' + tp + ' g protein. Recipes vary, so check the carbs on your own plate before you dose.';
-  say($('#mealBubble'), $('#mealBates'), pr.spiky ? 'Your tests ran high after meals, so I picked slower carbs today.' : p.diet.length || p.cuisine.length ? 'Picked to match your filters.' : 'Half the plate veggies, a quarter protein, a quarter carbs.', 'point');
-  DD._meals = out;
+  $('#mealTotals').innerHTML = pr.icr
+    ? 'At your ratio of 1 : ' + pr.icr + ', today\'s food needs about <b>' + fmt(units, 1) + ' units</b> of mealtime insulin before any correction. Meal dose adds the correction from your blood sugar reading.'
+    : 'Find your carb ratio and each meal will show its own insulin dose. <a href="#ratio">Find my ratio</a>';
+
+  const msg = T.pri.has('lowcarb') ? 'Eating fewer carbs changes how much insulin you need. Talk to your care team before you switch.'
+    : pr.spiky ? 'Your test meals ran high, so I picked slower carbs and more fiber today.'
+    : pr.lows ? 'You\'ve had a low during testing. Eat the whole meal when you dose for it.'
+    : !T.kgKnown ? 'Add your weight below and I\'ll set your protein goal.'
+    : 'Every goal is covered. Tap Swap to trade any meal.';
+  say($('#mealBubble'), $('#mealBates'), msg, T.pri.has('lowcarb') || pr.lows ? 'point' : 'thumbs', T.pri.has('lowcarb') ? 'warn' : '');
+
+  DD._meals = Object.fromEntries(day.map((m, i) => [SLOTS[i][0], [m, e.k[i]]]));
+  if (window.anime && !DD.reduce) {
+    const tgt = changed && SLOTS.some(x => x[0] === changed) ? '.meal[data-slot="' + changed + '"]' : changed ? '.meal' : null;
+    if (tgt) anime({ targets: tgt, translateY: [16, 0], rotate: [-2, 0], opacity: [.3, 1], delay: anime.stagger(60), duration: 520, easing: 'easeOutBack' });
+    anime({ targets: '#mealGoals .g-fill', scaleX: [0, 1], duration: 700, delay: anime.stagger(50), easing: 'easeOutCubic' });
+  }
 }
-const commit = () => { DD.save(); render(); };
+
+/* ---------- controls ---------- */
+const commit = how => { DD.save(); render(how || 'all'); };
 document.addEventListener('click', e => {
-  const t = e.target.closest('[data-diet],[data-cuisine],[data-swap],[data-use]'); if (!t) return;
-  const p = prefs(), day = new Date().toDateString();
+  const t = e.target.closest('[data-diet],[data-cuisine],[data-swap],[data-use],[data-pri],[data-cal]'); if (!t || !t.closest('[data-view=meals]')) return;
+  const p = prefs();
   if (t.dataset.diet) { const k = t.dataset.diet; p.diet = p.diet.includes(k) ? p.diet.filter(x => x !== k) : p.diet.concat(k); commit(); }
   else if (t.dataset.cuisine) { const k = t.dataset.cuisine; p.cuisine = p.cuisine.includes(k) ? p.cuisine.filter(x => x !== k) : p.cuisine.concat(k); commit(); }
-  else if (t.dataset.swap) { p.shuffle[day + t.dataset.swap] = (p.shuffle[day + t.dataset.swap] || 0) + 1; p.shuffle = Object.fromEntries(Object.entries(p.shuffle).filter(([k]) => k.startsWith(day))); commit(); const card = $('.meal[data-slot="' + t.dataset.swap + '"]'); if (card && window.anime && !DD.reduce) anime({ targets: card, rotate: [-3, 0], scale: [.94, 1], duration: 500, easing: 'easeOutElastic(1,.6)' }); }
-  else if (t.dataset.use) { const m = DD._meals[t.dataset.use]; DD.loadPlate([[m[0], m[9], m[4], m[5], m[6], m[7]]]); }
+  else if (t.dataset.pri) { const k = t.dataset.pri; p.pri = p.pri.includes(k) ? p.pri.filter(x => x !== k) : p.pri.concat(k).slice(-2); commit(); }
+  else if (t.dataset.cal) { p.cal = +t.dataset.cal; commit(); }
+  else if (t.dataset.swap) swap(t.dataset.swap);
+  else if (t.dataset.use) {
+    const [m, k] = DD._meals[t.dataset.use];
+    DD.loadPlate([[m[0], (k !== 1 ? PORTION[k] + ' servings: ' : '') + m[C.plate], Math.round(m[C.carbs] * k), Math.round(m[C.fiber] * k), Math.round(m[C.prot] * k), Math.round(m[C.fat] * k)]]);
+  }
 });
-$('#mealCarb').addEventListener('input', e => { prefs().carb = +e.target.value; $('#mealCarbOut').textContent = e.target.value + ' g'; });
-$('#mealCarb').addEventListener('change', commit);
 $('#mealAvoid').addEventListener('change', e => { prefs().avoid = e.target.value; commit(); });
-$('#mealUsual').addEventListener('click', () => { prefs().carb = Math.max(30, Math.min(75, profile().usual)); commit(); });
-$('#mealShuffle').addEventListener('click', () => { const p = prefs(), day = new Date().toDateString(); SLOTS.forEach(([s]) => p.shuffle[day + s] = (p.shuffle[day + s] || 0) + 1); commit(); if (window.anime && !DD.reduce) anime({ targets: '.meal', translateY: [18, 0], opacity: [.3, 1], delay: anime.stagger(70), duration: 450, easing: 'easeOutBack' }); });
-DD.onRoute('meals', render);
+$('#mealKg').addEventListener('change', e => { const p = prefs(), v = parseFloat(e.target.value); p.kg = v > 0 ? (p.unit === 'lb' ? v / 2.20462 : v) : null; if (p.kg && (p.kg < 20 || p.kg > 250)) { p.kg = null; toast('That weight looks off. Check the number and units.'); } commit(); });
+$('#mealKgUnit').addEventListener('click', () => { const p = prefs(); p.unit = p.unit === 'kg' ? 'lb' : 'kg'; DD.save(); render(); });
+$('#mealShuffle').addEventListener('click', () => commit('new'));
+DD.onRoute('meals', () => render('all'));
 DD.on('account', () => { if (!$('[data-view=meals]').hidden) render(); });
+DD.on('settings', () => { if (!$('[data-view=meals]').hidden) render(); });
+DD.meals = { evalDay, targets, bestDay };
 })();

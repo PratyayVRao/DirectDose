@@ -124,6 +124,14 @@ onSee(calcSvg, () => {
     .add({ duration: 2600 });
 });
 
+/* ---- impact numbers count up the first time they're seen ---- */
+$$('.impact b[data-count]').forEach(el => onSee(el, () => {
+  if (!A || reduce) return;
+  const end = +el.dataset.count, pre = el.dataset.pre || '', suf = el.dataset.suf || '', o = { v: 0 };
+  A({ targets: o, v: end, round: 1, duration: 1600, easing: 'easeOutExpo', update: () => el.textContent = pre + o.v + suf });
+  A({ targets: el.parentElement, rotate: [-4, 0], scale: [.9, 1], duration: 900, easing: 'easeOutElastic(1,.6)' });
+}));
+
 /* ---- headline pops and the dot grid, for the rest of the page ---- */
 if (A && !reduce) {
   $$('.scene').forEach(s => onSee(s, () => {

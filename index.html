@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap" rel="stylesheet">
 <link rel="icon" href="dd-logo.png">
-<link rel="stylesheet" href="site.css?v=3">
+<link rel="stylesheet" href="site.css?v=5">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -20,12 +20,12 @@
   <a class="brand" href="#home" aria-label="DirectDose home"><span class="dd-logo" aria-hidden="true"></span><span class="notranslate" translate="no">DirectDose</span></a>
   <nav class="links" id="links" aria-label="Main">
     <span class="ink" id="ink" aria-hidden="true"></span>
-    <a href="#bolus" data-nav="bolus">Meal dose</a>
-    <a href="#ratio" data-nav="ratio">My ratio</a>
-    <a href="#basal" data-nav="basal">Basal</a>
-    <a href="#meals" data-nav="meals">Meals</a>
-    <a href="#guide" data-nav="guide">Guide</a>
-    <a href="#about" data-nav="about">About</a>
+    <a href="#bolus" data-nav="bolus"><svg class="nav-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M8 13h8M12 9v8M9.500 3h5"/></svg><span>Meal dose</span></a>
+    <a href="#ratio" data-nav="ratio"><svg class="nav-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="7" cy="7" r="3"/><circle cx="17" cy="17" r="3"/><path d="M19 5 5 19"/></svg><span>My ratio</span></a>
+    <a href="#basal" data-nav="basal"><svg class="nav-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 15c4 0 4-6 8-6s4 6 8 6 3-4 4-4"/><path d="M2 21h20"/></svg><span>Basal</span></a>
+    <a href="#meals" data-nav="meals"><svg class="nav-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="14" cy="13" r="7"/><circle cx="14" cy="13" r="3"/><path d="M3 3v7M1.500 3v3.500a1.500 1.500 0 0 0 3 0V3M3 10v11"/></svg><span>Meals</span></a>
+    <a href="#guide" data-nav="guide"><svg class="nav-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4ZM20 4h-4a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h5Z"/></svg><span>Guide</span></a>
+    <a href="#about" data-nav="about"><svg class="nav-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>About</span></a>
   </nav>
   <div class="nav-tools">
     <button class="globe" id="globe" aria-label="Change language" aria-haspopup="true">
@@ -40,7 +40,7 @@
     </div>
   </div>
 </header>
-<p class="medbar">Built on published medical research. Not medical advice. Always follow your care team.</p>
+<p class="medbar"><span class="long">Built on published medical research. Not medical advice. Always follow your care team.</span><span class="short">Medically backed. Not medical advice.</span></p>
 <div id="gt" class="notranslate" aria-hidden="true"></div>
 
 <main id="main">
@@ -87,11 +87,12 @@
       <canvas id="lineart" role="img" aria-label="Line drawing of Bates reading, drawn in one continuous stroke"></canvas>
     </div>
     <div class="research-copy">
-      <h2>Every number has a source.</h2>
-      <ul class="facts">
-        <li><b>12</b><span>peer-reviewed papers behind the guide</span></li>
-        <li><b>7</b><span>days of test meals to find the carb ratio that fits you</span></li>
-        <li><b>1</b><span>rule: your care team's plan comes first</span></li>
+      <h2>DirectDose so far</h2>
+      <ul class="impact">
+        <li class="sk"><b data-count="30" data-pre="~">~30</b><span>nations</span></li>
+        <li class="sk"><b data-count="150" data-suf="k+">150k+</b><span>people reached</span></li>
+        <li class="sk"><b data-count="1" data-suf="M+">1M+</b><span>meals tracked</span></li>
+        <li class="sk"><b data-count="11" data-pre="$" data-suf="k+">$11k+</b><span>raised</span></li>
       </ul>
     </div>
   </section>
@@ -262,7 +263,7 @@
             <div><b id="tProt">0</b><span>g protein</span></div>
             <div><b id="tFat">0</b><span>g fat</span></div>
           </div>
-          <small class="fine">Typical values per serving. Can't find a food? Keep typing: the search also checks the USDA database, or add your own carbs.</small>
+          <small class="fine">Typical values per serving. Type a brand like Chobani or Quaker to see foods with their nutrition-label carbs from USDA, or add your own.</small>
         </fieldset>
       </div>
 
@@ -401,35 +402,40 @@
 <!-- ================= MEALS ================= -->
 <section class="view" data-view="meals" hidden>
   <div class="wrap tool">
-    <div class="tool-head"><h1>Today's meals</h1></div>
+    <div class="tool-head"><h1>Today's meals</h1><button class="btn sk small phone-only" id="mealJump" type="button">My goals and filters</button></div>
     <div class="tool-grid">
       <div class="steps">
+        <div class="card goals" id="mealGoals"></div>
         <div class="meal-list" id="mealPlan"></div>
         <p class="fine" id="mealTotals"></p>
       </div>
       <aside class="result card sk">
-        <div class="says"><canvas class="bates" id="mealBates" data-bates="point" role="img" aria-label="Bates"></canvas><div class="bubble side" id="mealBubble" aria-live="polite"></div></div>
-        <p class="fine" id="mealWhy"></p>
+        <div class="says"><canvas class="bates" id="mealBates" data-bates="thumbs" role="img" aria-label="Bates"></canvas><div class="bubble side" id="mealBubble" aria-live="polite"></div></div>
+        <p class="result-label">My priorities <span class="opt">pick up to 2</span></p>
+        <div class="pair-pick" id="mealPri"></div>
+        <p class="result-label">Calories a day</p>
+        <div class="seg" id="mealCal" role="group" aria-label="Calories a day"></div>
+        <p class="fine">2,000 is the standard used on food labels. A dietitian can tell you yours.</p>
+        <label>Weight <i class="opt">optional, sets your protein goal</i><span class="inp"><input id="mealKg" type="number" inputmode="decimal" min="1" step="any" placeholder="70"><button class="unit-toggle" id="mealKgUnit" type="button">kg</button></span></label>
         <p class="result-label">I eat</p>
         <div class="pair-pick" id="mealDiet"></div>
         <p class="result-label">I like</p>
         <div class="pair-pick" id="mealCuisine"></div>
-        <label class="slider">Carbs per meal <b id="mealCarbOut">45 g</b>
-          <input type="range" id="mealCarb" min="30" max="75" step="5" value="45">
-        </label>
-        <button class="btn sk small" id="mealUsual" hidden></button>
         <label>Foods to skip<span class="inp"><input id="mealAvoid" type="text" placeholder="mushroom, fish"></span></label>
         <button class="btn sk primary" id="mealShuffle">New ideas</button>
       </aside>
     </div>
     <details class="sources">
-      <summary>Why these meals</summary>
+      <summary>Where these goals come from</summary>
       <ul>
-        <li>Half the plate non-starchy vegetables, a quarter protein, a quarter carbs. No single eating pattern fits everyone, so the plan follows your preferences. Evert et al., Nutrition Therapy for Adults With Diabetes or Prediabetes: A Consensus Report. <i>Diabetes Care</i>, 2019. <a href="https://doi.org/10.2337/dci19-0014" target="_blank" rel="noopener">Read</a></li>
-        <li>More fiber and whole grains improve blood sugar control. Reynolds et al. <i>PLOS Medicine</i>, 2020. <a href="https://doi.org/10.1371/journal.pmed.1003053" target="_blank" rel="noopener">Read</a></li>
-        <li>Fat and protein change the timing of the rise. Bell et al. <i>Diabetes Care</i>, 2015. <a href="https://doi.org/10.2337/dc15-0100" target="_blank" rel="noopener">Read</a></li>
+        <li><b>Protein:</b> 1.2 to 1.6 g per kg of body weight a day. <b>Added sugar:</b> under 10 g per meal. <b>Saturated fat:</b> under 10% of calories. Limit refined carbs and highly processed foods. Dietary Guidelines for Americans, 2025–2030. <a href="https://www.realfood.gov" target="_blank" rel="noopener">Read</a></li>
+        <li><b>Carbs, fat and fiber:</b> the FDA Daily Values used on food labels, scaled to your calories (275 g carbs, 78 g fat and 28 g fiber at 2,000 calories). Carbs are treated as an upper limit, not a target. <a href="https://www.fda.gov/food/nutrition-facts-label/daily-value-nutrition-and-supplement-facts-labels" target="_blank" rel="noopener">Read</a></li>
+        <li><b>No single eating pattern is right for everyone with diabetes.</b> Plans should fit your preferences, culture and goals, with fewer refined carbs and added sugars. Evert et al., Nutrition Therapy for Adults With Diabetes or Prediabetes. <i>Diabetes Care</i>, 2019. <a href="https://doi.org/10.2337/dci19-0014" target="_blank" rel="noopener">Read</a></li>
+        <li><b>Glycemic index</b> ratings follow the International Tables of Glycemic Index and Glycemic Load Values. Atkinson et al. <i>Am J Clin Nutr</i>, 2021. <a href="https://doi.org/10.1093/ajcn/nqab233" target="_blank" rel="noopener">Read</a></li>
+        <li><b>More fiber and whole grains</b> improve blood sugar control. Reynolds et al. <i>PLOS Medicine</i>, 2020. <a href="https://doi.org/10.1371/journal.pmed.1003053" target="_blank" rel="noopener">Read</a></li>
+        <li><b>Fat and protein</b> can push blood sugar up hours after a meal. Bell et al. <i>Diabetes Care</i>, 2015. <a href="https://doi.org/10.2337/dc15-0100" target="_blank" rel="noopener">Read</a></li>
       </ul>
-      <p class="disclaimer">Medically backed, not medical advice. Meal values are estimates. A dietitian can build a plan around your health, culture, and budget.</p>
+      <p class="disclaimer">Medically backed, not medical advice. Goals are for adults. Meal values are estimates, so check the carbs on your own plate before you dose. Children, pregnant people, and anyone with kidney disease should get goals from their care team.</p>
     </details>
   </div>
 </section>
@@ -554,21 +560,23 @@
   <canvas class="bates" id="imBates" data-bates="point" role="img" aria-label="Bates pointing at the IncitefulMed tab"></canvas>
 </div>
 <a class="im-tab" id="imTab" href="https://incitefulmed.com/?utm_source=direct-dose" target="_blank" rel="noopener" hidden>Health Answers</a>
+<button class="dose-bar" id="doseBar" type="button" hidden>Suggested dose <b id="doseBarN">–</b> units</button>
 <canvas id="confetti" aria-hidden="true"></canvas>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-<script src="foods.js?v=3"></script>
-<script src="foods2.js?v=3"></script>
-<script src="lineart.js?v=3"></script>
-<script src="bates.js?v=3"></script>
-<script src="app.js?v=3"></script>
-<script src="story.js?v=3"></script>
-<script src="ratio.js?v=3"></script>
-<script src="meals.js?v=3"></script>
-<script src="auth.js?v=3"></script>
-<script src="i18n.js?v=3"></script>
-<script src="inciteful.js?v=3"></script>
+<script src="foods.js?v=5"></script>
+<script src="foods2.js?v=5"></script>
+<script src="meals-data.js?v=5"></script>
+<script src="lineart.js?v=5"></script>
+<script src="bates.js?v=5"></script>
+<script src="app.js?v=5"></script>
+<script src="story.js?v=5"></script>
+<script src="ratio.js?v=5"></script>
+<script src="meals.js?v=5"></script>
+<script src="auth.js?v=5"></script>
+<script src="i18n.js?v=5"></script>
+<script src="inciteful.js?v=5"></script>
 <script>DD.start();</script>
 <script src="https://widget.incitefulmed.com/incitefulmed-widget.js" data-partner-id="direct-dose" async onerror="window.__imFail=1"></script>
 </body>

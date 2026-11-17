@@ -16,10 +16,14 @@ function place() {
 }
 function show() {
   if (hiddenByUser) return;
-  call.hidden = false; place();
+  call.hidden = false;
+  /* on a phone the bubble would cover the page, so it only opens on the home page */
+  const onHome = !location.hash || location.hash === '#home';
+  if (innerWidth <= 680 && !onHome) call.classList.add('mini');
+  place();
   if (cv._bates) { cv._bates.kick(); cv._bates.act(2.5); }
-  /* on a phone the speech bubble steps aside after a few seconds; Bates stays and still opens the widget */
-  if (innerWidth <= 680) setTimeout(() => { call.querySelector('.bubble').hidden = true; place(); }, 7000);
+  /* after a few seconds the bubble tucks away so it doesn't cover the page; Bates keeps peeking and pointing */
+  setTimeout(() => { call.classList.add('mini'); place(); }, innerWidth <= 680 ? 6000 : 9000);
   /* a nudge every so often, so it catches the eye without nagging */
   setInterval(() => { if (!call.hidden && cv._bates) cv._bates.act(1.6); }, 9000);
 }
@@ -30,6 +34,10 @@ let tries = 0;
   setTimeout(wait, 250);
 })();
 addEventListener('resize', place);
+/* on a phone the bubble only shows at the very top of the home page, then gets out of the way */
+addEventListener('scroll', () => { if (innerWidth <= 680 && scrollY > 120 && !call.classList.contains('mini')) { call.classList.add('mini'); place(); } }, { passive: true });
+call.addEventListener('pointerenter', () => { if (call.classList.contains('mini')) { call.classList.remove('mini'); call.dataset.peek = 1; place(); } });
+call.addEventListener('pointerleave', () => { if (call.dataset.peek) { delete call.dataset.peek; call.classList.add('mini'); place(); } });
 $('#imGo').addEventListener('click', () => { const l = launcher(); if (l) l.click(); else tab.click(); });
 cv.addEventListener('click', () => $('#imGo').click());
 $('#imX').addEventListener('click', () => { call.hidden = true; try { sessionStorage.setItem('dd.imHide', '1'); } catch (e) {} });

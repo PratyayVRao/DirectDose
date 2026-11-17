@@ -380,35 +380,59 @@ function search(term) {
   });
   return scored.sort((a, b) => a[0] - b[0] || a[1][0].localeCompare(b[1][0])).slice(0, 8).map(x => x[1]);
 }
-/* online lookup: USDA FoodData Central, for anything the built-in list doesn't have */
+/* online lookup: USDA FoodData Central.
+   Branded foods are the nutrition labels manufacturers submit to USDA, so typing "chobani" lists Chobani products
+   with the carbs printed on their label. Generic foods come from USDA's survey and reference data. */
 let onlineT, onlineQ = '', online = [];
-const tidy = s => s.toLowerCase().replace(/(^|[\s(])\w/g, m => m.toUpperCase());
+const tidy = s => String(s || '').toLowerCase().replace(/(^|[\s(\/&-])\w/g, m => m.toUpperCase()).replace(/\s+/g, ' ').trim();
+const nut = (f, id, no) => { const x = (f.foodNutrients || []).find(z => z.nutrientId === id || String(z.nutrientNumber) === no); return x && isFinite(x.value) ? x.value : 0; };
 function usdaFood(f) {
-  const get = (id, no) => { const x = (f.foodNutrients || []).find(z => z.nutrientId === id || String(z.nutrientNumber) === no); return x && isFinite(x.value) ? x.value : 0; };
   const m = (f.foodMeasures || []).filter(m => m.gramWeight > 0 && !/not specified/i.test(m.disseminationText || '')).sort((a, b) => (a.rank || 99) - (b.rank || 99))[0];
   const g = m ? m.gramWeight : 100, k = g / 100;
-  return [tidy(f.description || 'Food'), (m ? m.disseminationText + ', ' : '') + Math.round(g) + ' g', Math.round(get(1005, '205') * k), Math.round(get(1079, '291') * k), Math.round(get(1003, '203') * k), Math.round(get(1004, '204') * k), '', 'USDA'];
+  return [tidy(f.description || 'Food'), (m ? m.disseminationText + ', ' : '') + Math.round(g) + ' g', Math.round(nut(f, 1005, '205') * k), Math.round(nut(f, 1079, '291') * k), Math.round(nut(f, 1003, '203') * k), Math.round(nut(f, 1004, '204') * k), '', 'USDA'];
+}
+function brandedFood(f) {
+  /* search results give nutrients per 100 g (or 100 ml); the label serving converts them back to per serving */
+  const unit = String(f.servingSizeUnit || '').toLowerCase(), size = +f.servingSize;
+  const isMl = /^(ml|mlt)$/.test(unit), ok = size > 0 && /^(g|grm|gm|ml|mlt)$/.test(unit);
+  const k = ok ? size / 100 : 1, u = isMl ? 'ml' : 'g';
+  const brand = tidy(f.brandName || f.brandOwner || '');
+  let desc = tidy(f.description || 'Food');
+  if (brand && desc.toLowerCase().startsWith(brand.toLowerCase())) desc = desc.slice(brand.length).replace(/^[\s,:-]+/, '');
+  const house = tidy(f.householdServingFullText || '').toLowerCase();
+  const serving = ok ? (house && !/^[\d.]+\s*(g|grm|ml|mlt|onz|oz)$/i.test(house) ? house + ' (' + Math.round(size) + ' ' + u + ')' : Math.round(size) + ' ' + u) : '100 ' + u;
+  return [(brand ? brand + ' ' : '') + desc, serving, Math.round(nut(f, 1005, '205') * k), Math.round(nut(f, 1079, '291') * k), Math.round(nut(f, 1003, '203') * k), Math.round(nut(f, 1004, '204') * k), '', 'label'];
+}
+const CACHE_DAYS = 7;
+function cached(t) { const c = store.get('fdc', {})[t.toLowerCase()]; return c && Date.now() - c.at < CACHE_DAYS * 864e5 ? c.items : null; }
+function remember(t, items) { const all = store.get('fdc', {}); all[t.toLowerCase()] = { at: Date.now(), items }; const keys = Object.keys(all); if (keys.length > 120) keys.sort((a, b) => all[a].at - all[b].at).slice(0, keys.length - 120).forEach(k => delete all[k]); store.set('fdc', all); }
+async function fdcSearch(t, types, size) {
+  const r = await fetch('https://api.nal.usda.gov/fdc/v1/foods/search?api_key=' + encodeURIComponent(CONFIG.usdaApiKey) + '&pageSize=' + size + '&dataType=' + encodeURIComponent(types) + '&query=' + encodeURIComponent(t));
+  if (!r.ok) throw new Error('USDA ' + r.status);
+  return (await r.json()).foods || [];
 }
 function fetchOnline(t) {
   clearTimeout(onlineT);
   if (!CONFIG.usdaApiKey || t.length < 3) return;
+  const hit = cached(t); if (hit) { online = hit; onlineQ = t; return renderDrop(); }
   onlineT = setTimeout(async () => {
-    try {
-      const r = await fetch('https://api.nal.usda.gov/fdc/v1/foods/search?api_key=' + encodeURIComponent(CONFIG.usdaApiKey) + '&pageSize=6&dataType=' + encodeURIComponent('Survey (FNDDS),SR Legacy,Foundation') + '&query=' + encodeURIComponent(t));
-      if (!r.ok) return;
-      const j = await r.json();
-      if (q.value.trim() !== t) return;
-      online = (j.foods || []).map(usdaFood); onlineQ = t; renderDrop();
-    } catch (e) { /* offline or blocked: the built-in list still works */ }
-  }, 450);
+    const [b, g] = await Promise.all([fdcSearch(t, 'Branded', 12).catch(() => []), fdcSearch(t, 'Survey (FNDDS),SR Legacy,Foundation', 5).catch(() => [])]);
+    if (q.value.trim() !== t) return;
+    const seen = new Set();
+    const brandHit = b.some(f => (f.brandName || f.brandOwner || '').toLowerCase().includes(t.toLowerCase()));
+    const list = (brandHit ? b.map(brandedFood).concat(g.map(usdaFood)) : g.map(usdaFood).concat(b.map(brandedFood)))
+      .filter(x => x[2] >= 0 && !seen.has(x[0].toLowerCase() + x[1]) && seen.add(x[0].toLowerCase() + x[1]));
+    online = list.slice(0, 12); onlineQ = t; if (list.length) remember(t, online); renderDrop();
+  }, 400);
 }
 const hl = (name, t) => { const i = name.toLowerCase().indexOf(t.toLowerCase()); return i < 0 ? esc(name) : esc(name.slice(0, i)) + '<mark>' + esc(name.slice(i, i + t.length)) + '</mark>' + esc(name.slice(i + t.length)); };
 function renderDrop() {
   const t = q.value.trim();
   if (!t) { drop.hidden = true; q.setAttribute('aria-expanded', 'false'); return; }
   hits = search(t);
+  if (onlineQ === t && online.some(o => o[7] === 'label' && o[0].toLowerCase().startsWith(t.toLowerCase()))) hits = hits.slice(0, 3);
   if (onlineQ === t) hits = hits.concat(online.filter(o => !hits.some(h => h[0].toLowerCase() === o[0].toLowerCase()))); else fetchOnline(t);
-  drop.innerHTML = hits.map((f, i) => `<li role="option" id="opt${i}" data-i="${i}" class="${i === act ? 'act' : ''}" aria-selected="${i === act}"><span>${hl(f[0], t)}<small>${esc(f[1])}${f[7] ? ' · USDA' : ''}</small></span><b class="c">${f[2]} g</b></li>`).join('') +
+  drop.innerHTML = hits.map((f, i) => `<li role="option" id="opt${i}" data-i="${i}" class="${i === act ? 'act' : ''}" aria-selected="${i === act}"><span>${hl(f[0], t)}<small>${esc(f[1])}${f[7] === 'label' ? ' · <em class="lbl">nutrition label</em>' : f[7] ? ' · USDA' : ''}</small></span><b class="c">${f[2]} g</b></li>`).join('') +
     `<li role="option" id="opt${hits.length}" data-i="${hits.length}" class="custom ${act === hits.length ? 'act' : ''}"><span>Add “${esc(t)}” with my own carbs</span><b class="c">+</b></li>`;
   drop.hidden = false; q.setAttribute('aria-expanded', 'true'); q.setAttribute('aria-activedescendant', 'opt' + act);
   const a = $('.act', drop); if (a) a.scrollIntoView({ block: 'nearest' });
@@ -488,6 +512,7 @@ function compute() {
   }
   box.classList.remove('none');
   doseEl.textContent = r.dose.toFixed(roundStep === 1 ? 0 : 1);
+  $('#doseBarN').textContent = doseEl.textContent;
   if (doseEl.textContent !== old) { doseEl.classList.remove('tick'); void doseEl.offsetWidth; doseEl.classList.add('tick'); }
   const sign = v => (v >= 0 ? '+' : '−') + fmt(Math.abs(v), 2);
   $('#bkFood').textContent = fmt(t.carbs, 0) + ' g ÷ ' + icr + ' = ' + fmt(r.food, 2) + ' u';
@@ -512,6 +537,15 @@ $('#bLog').addEventListener('click', () => {
   data.log.unshift(Object.assign({ t: Date.now() }, lastCalc)); data.log = data.log.slice(0, 200); save();
   DD.emit('log'); toast('Saved to your log.'); say($('#bBubble'), $('#bBates'), 'Logged. Future you says thanks.', 'hop'); $('#bBates')._bates.act(2.5);
 });
+
+/* phones: the dose result sits below the form, so a bar at the bottom shows it while you type */
+const doseBar = $('#doseBar');
+let resultSeen = false;
+if ('IntersectionObserver' in window) new IntersectionObserver(e => { resultSeen = e[0].isIntersecting; syncDoseBar(); }).observe($('#bResult'));
+function syncDoseBar() { const n = $('#bDose').textContent; doseBar.hidden = resultSeen || $('[data-view=bolus]').hidden || !/\d/.test(n) || innerWidth > 900; }
+doseBar.addEventListener('click', () => $('#bResult').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }));
+setInterval(syncDoseBar, 600);
+$('#mealJump').addEventListener('click', () => $('[data-view=meals] aside').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }));
 
 /* ================= BASAL ================= */
 const wtUnit = { t1: 'kg', t2: 'kg' };
@@ -563,7 +597,7 @@ $$('[data-view=basal] input').forEach(i => i.addEventListener('input', basal));
 /* ---------- shared with the other scripts ---------- */
 const listeners = {};
 const DD = window.DD = {
-  $, $$, num, fmt, esc, clamp, reduce, store, toast, say, confetti, CONFIG, MMOL, calcBolus, calcRatios, floorTo, blank, sb: null,
+  tidy, brandedFood, $, $$, num, fmt, esc, clamp, reduce, store, toast, say, confetti, CONFIG, MMOL, calcBolus, calcRatios, floorTo, blank, sb: null,
   get data() { return data; }, set data(v) { data = v; },
   get session() { return session; }, set session(v) { session = v; },
   dataKey, save,
