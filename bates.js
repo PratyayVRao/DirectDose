@@ -160,7 +160,7 @@ function load(pose) {
       (rig.fills || []).forEach(f => { x.fillStyle = f.color; x.fillRect(f.rect[0] * S, f.rect[1] * S, f.rect[2] * S, f.rect[3] * S); });
       res({ rig, img, body, parts: rig.parts.map(p => buildPart(img, p)), w: img.width, h: img.height });
     };
-    img.onerror = rej; img.src = 'img/bates-' + pose + '.webp';
+    img.onerror = rej; img.src = 'bates-' + pose + '.webp';
   });
 }
 

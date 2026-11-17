@@ -333,7 +333,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 
 /* ===== round 3 ===== */
 .medbar{margin:0;text-align:center;font-size:.8rem;font-weight:600;color:var(--muted);padding:6px 16px;border-bottom:2px dashed var(--sage-deep)}
-.dd-logo{display:block;width:38px;height:32px;background:var(--teal);-webkit-mask:url(img/dd-logo.png) center/contain no-repeat;mask:url(img/dd-logo.png) center/contain no-repeat;transition:transform .4s cubic-bezier(.3,1.6,.5,1)}
+.dd-logo{display:block;width:38px;height:32px;background:var(--teal);-webkit-mask:url(dd-logo.png) center/contain no-repeat;mask:url(dd-logo.png) center/contain no-repeat;transition:transform .4s cubic-bezier(.3,1.6,.5,1)}
 .brand:hover .dd-logo{transform:rotate(-12deg) scale(1.12)}
 .foot .brand img{width:36px;height:30px}
 .nav-tools{position:relative;display:flex;align-items:center;gap:12px}

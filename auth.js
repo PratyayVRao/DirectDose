@@ -12,8 +12,8 @@ function chip() {
   a.classList.toggle('in', !!s);
   a.setAttribute('aria-label', s ? 'Account: ' + (s.name || s.email) : 'Sign in');
   a.title = s ? (s.name || s.email) : 'Sign in';
-  img.src = s && s.avatar ? s.avatar : 'img/bates-face.webp';
-  img.onerror = () => { img.onerror = null; img.src = 'img/bates-face.webp'; };
+  img.src = s && s.avatar ? s.avatar : 'bates-face.webp';
+  img.onerror = () => { img.onerror = null; img.src = 'bates-face.webp'; };
 }
 function adopt(u, remote, quiet) {
   const guest = DD.session ? null : DD.data;
