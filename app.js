@@ -9,7 +9,7 @@ const CONFIG = {
   supabaseAnonKey: 'sb_publishable_jZwZVnklz_fpcodihcVPXg_aXqN-s2v',
   /* USDA FoodData Central key for the online food search. DEMO_KEY is rate limited.
      Get a free one at https://fdc.nal.usda.gov/api-key-signup */
-  usdaApiKey: 'DEMO_KEY'
+  usdaApiKey: 'MzHCQzWtwjLJNpt9JtfKwKLKPjCqqB6kdmwGCMHN'
 };
 
 /* ---------- pure math (also used by tests) ---------- */
@@ -128,24 +128,7 @@ heroCv.addEventListener('click', heroNext);
 heroCv.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); heroNext(); } });
 
 /* ---------- line art: one continuous line that draws with scroll ---------- */
-const la = $('#lineart'), lctx = la.getContext('2d');
-let laDrawn = -1;
-function drawLine(p) {
-  const L = window.LINEART; if (!L) return;
-  const total = L.p.length / 2 - 1, n = Math.round(total * p);
-  const dpr = Math.min(2, devicePixelRatio || 1), w = Math.round(la.clientWidth * dpr), h = Math.round(la.clientHeight * dpr);
-  if (!w) return;
-  if (la.width !== w || la.height !== h) { la.width = w; la.height = h; laDrawn = -1; }
-  if (n === laDrawn) return;
-  let from = laDrawn;
-  if (n < laDrawn || laDrawn < 0) { lctx.clearRect(0, 0, w, h); from = 0; }
-  lctx.strokeStyle = 'rgba(0,108,104,.55)'; lctx.lineWidth = .75 * dpr; lctx.lineJoin = 'round';
-  lctx.beginPath();
-  for (let i = from; i < n; i++) { lctx.moveTo(L.p[i * 2] / 1000 * w, L.p[i * 2 + 1] / 1000 * h); lctx.lineTo(L.p[i * 2 + 2] / 1000 * w, L.p[i * 2 + 3] / 1000 * h); }
-  lctx.stroke();
-  if (n > 0 && n < total) { lctx.fillStyle = '#006C68'; }
-  laDrawn = n;
-}
+/* the one-line drawings live in lines.js */
 
 /* ---------- partners ---------- */
 (function () {
@@ -282,8 +265,6 @@ function onScroll() {
   ticking = false;
   if ($('[data-view=home]').hidden) { walker.classList.remove('on'); return; }
   const vh = innerHeight;
-  const rr = $('#research').getBoundingClientRect();
-  drawLine(reduce ? 1 : clamp((vh * .95 - rr.top) / (vh * .8)));
   let current = 0;
   scenes.forEach((s, i) => {
     const r = s.getBoundingClientRect();

@@ -6,7 +6,17 @@ const A = window.anime;
 const hex = (r) => 'M' + [0, 1, 2, 3, 4, 5].map(i => [(r * Math.cos(i * Math.PI / 3 + .5)).toFixed(1), (r * Math.sin(i * Math.PI / 3 + .5)).toFixed(1)]).join('L') + 'Z';
 const DROP = 'M0-11C7-1 8 4 0 10C-8 4-7-1 0-11Z';
 const person = (x, y, i) => `<g class="person" data-i="${i}" transform="translate(${x} ${y})"><g class="pin"><circle cy="-16" r="8"/><path d="M-11 18V4a11 11 0 0 1 22 0v14Z"/></g></g>`;
-const onSee = (el, fn) => { if (!('IntersectionObserver' in window)) return fn(); const io = new IntersectionObserver(e => { if (e[0].isIntersecting) { io.disconnect(); fn(); } }, { threshold: .3 }); io.observe(el); };
+/* onSee(el, fn): run fn when el comes into view. With again = true it runs every time el comes back after
+   leaving the screen completely. */
+const onSee = (el, fn, again) => {
+  if (!el) return; if (!('IntersectionObserver' in window)) return fn();
+  let armed = true;
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.intersectionRatio >= .3 && armed) { armed = false; fn(); if (!again) io.disconnect(); }
+    else if (!e.isIntersecting && again) armed = true;
+  }), { threshold: [0, .3] });
+  io.observe(el);
+};
 
 /* ---- 05 plate: sugar pieces travel from the plate to the blood ---- */
 const PLATE = {
@@ -42,7 +52,7 @@ function playPlate(kind) {
 }
 $$('[data-pair]').forEach(b => b.addEventListener('click', () => playPlate(b.dataset.pair)));
 $('#pairText').textContent = PLATE.alone.say;
-onSee(plateSvg, () => playPlate('alone'));
+onSee(plateSvg, () => playPlate($('[data-pair].on') ? $('[data-pair].on').dataset.pair : 'alone'), true);
 
 /* ---- 06 everyone is different: same snack, three different rises ---- */
 const youSvg = $('#stYou'), LV = [.55, .3, .9];
@@ -54,7 +64,7 @@ onSee(youSvg, () => {
   const fills = $$('.youFill');
   const cnt = $('#mealCount');
   if (reduce || !A) { fills.forEach((f, i) => { f.setAttribute('height', 114 * LV[i]); f.setAttribute('y', 257 - 114 * LV[i]); }); return; }
-  const o = { v: 0 }; A({ targets: o, v: 46898, round: 1, duration: 1800, easing: 'easeOutExpo', update: () => cnt.textContent = o.v.toLocaleString('en-US') });
+  onSee(cnt, () => { const o = { v: 0 }; A({ targets: o, v: 46898, round: 1, duration: 1800, easing: 'easeOutExpo', update: () => cnt.textContent = o.v.toLocaleString('en-US') }); }, true);
   A.timeline({ loop: true })
     .add({ targets: '#stYou .face', rotate: [-6, 6], duration: 500, direction: 'alternate', delay: A.stagger(120), easing: 'easeInOutSine' })
     .add({ targets: fills, height: (el, i) => 114 * LV[i], y: (el, i) => 257 - 114 * LV[i], duration: 1300, delay: A.stagger(260), easing: 'easeOutElastic(1,.7)' }, 300)
@@ -107,7 +117,7 @@ function playRace(m) {
     .add({ duration: 1600, complete: () => { say.textContent = early ? 'Insulin goes first…' : 'Ready, set, go!'; } }, 3100);
 }
 $$('[data-race]').forEach(b => b.addEventListener('click', () => playRace(b.dataset.race)));
-onSee(raceSvg, () => playRace('together'));
+onSee(raceSvg, () => playRace(raceMode), true);
 
 /* ---- 09 calculator: 10 people each way ---- */
 const calcSvg = $('#stCalc');
@@ -126,20 +136,23 @@ onSee(calcSvg, () => {
 
 /* ---- impact numbers count up the first time they're seen ---- */
 $$('.impact b[data-count]').forEach(el => onSee(el, () => {
+  A && A.remove(el.parentElement);
   if (!A || reduce) return;
   const end = +el.dataset.count, pre = el.dataset.pre || '', suf = el.dataset.suf || '', o = { v: 0 };
-  A({ targets: o, v: end, round: 1, duration: 1600, easing: 'easeOutExpo', update: () => el.textContent = pre + o.v + suf });
+  A({ targets: o, v: end, round: 1, duration: 1600, easing: 'easeOutExpo', update: () => el.textContent = el.dataset.big && o.v >= end ? el.dataset.big : pre + o.v.toLocaleString('en-US') + suf });
   A({ targets: el.parentElement, rotate: [-4, 0], scale: [.9, 1], duration: 900, easing: 'easeOutElastic(1,.6)' });
-}));
+}, true));
 
 /* ---- headline pops and the dot grid, for the rest of the page ---- */
 if (A && !reduce) {
   $$('.scene').forEach(s => onSee(s, () => {
     A({ targets: s.querySelector('.num'), translateX: [-40, 0], rotate: [-8, 0], duration: 900, easing: 'easeOutElastic(1,.6)' });
     A({ targets: s.querySelector('h3'), translateY: [26, 0], duration: 700, easing: 'easeOutBack' });
-  }));
-  A({ targets: '.tile', translateY: [30, 0], rotate: [-3, 0], duration: 900, delay: A.stagger(110, { start: 150 }), easing: 'easeOutElastic(1,.7)' });
-  A({ targets: '.press img', translateY: [14, 0], duration: 700, delay: A.stagger(120, { start: 500 }), easing: 'easeOutBack' });
+  }, true));
+  onSee($('.tiles'), () => A({ targets: '.tile', translateY: [30, 0], rotate: [-3, 0], duration: 900, delay: A.stagger(110, { start: 150 }), easing: 'easeOutElastic(1,.7)' }), true);
+  onSee($('.press'), () => A({ targets: '.press img', translateY: [14, 0], opacity: [0, .82], duration: 700, delay: A.stagger(120, { start: 150 }), easing: 'easeOutBack' }), true);
+  $$('.facts, .guide-end, .sources').forEach(el => onSee(el, () => A({ targets: el, translateY: [24, 0], opacity: [.2, 1], duration: 700, easing: 'easeOutCubic' }), true));
+  onSee($('.partners'), () => A({ targets: '.partners .kicker', letterSpacing: ['.5em', '.14em'], opacity: [0, 1], duration: 900, easing: 'easeOutExpo' }), true);
 }
 const grid = $('#dotGrid');
 if (grid) {
@@ -149,7 +162,11 @@ if (grid) {
   const ripple = from => { if (!A || reduce) return; A.remove(cells); A({ targets: cells, scale: [{ value: 2.6, duration: 220, easing: 'easeOutQuad' }, { value: 1, duration: 500, easing: 'easeInOutQuad' }], rotate: [{ value: 45, duration: 220 }, { value: 0, duration: 500 }], delay: A.stagger(34, { grid: [cols, rows], from }) }); };
   grid.addEventListener('pointerdown', e => { const i = cells.indexOf(e.target); if (i >= 0) ripple(i); });
   let last = 0; grid.addEventListener('pointermove', e => { const i = cells.indexOf(e.target), now = Date.now(); if (i >= 0 && now - last > 900) { last = now; ripple(i); } });
-  onSee(grid, () => ripple('center'));
+  onSee(grid, () => ripple('center'), true);
 }
-if (A && !reduce) DD.onRoute('about', () => A({ targets: '.shot', translateY: [30, 0], rotate: (el, i) => [(i % 2 ? 5 : -5), (i % 3 - 1) * 1.2], opacity: [.2, 1], duration: 800, delay: A.stagger(70), easing: 'easeOutElastic(1,.8)' }));
+if (A && !reduce) {
+  const pop = els => A({ targets: els, translateY: [30, 0], rotate: (el, i) => [(i % 2 ? 5 : -5), (i % 3 - 1) * 1.2], opacity: [.2, 1], duration: 800, delay: A.stagger(70), easing: 'easeOutElastic(1,.8)' });
+  $$('.gallery').forEach(g => onSee(g, () => pop(g.querySelectorAll('.shot')), true));
+  $$('.about-h').forEach(h => onSee(h, () => A({ targets: h, translateX: [-30, 0], opacity: [0, 1], duration: 700, easing: 'easeOutBack' }), true));
+}
 })();

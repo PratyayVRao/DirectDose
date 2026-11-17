@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap" rel="stylesheet">
 <link rel="icon" href="dd-logo.png">
-<link rel="stylesheet" href="site.css?v=5">
+<link rel="stylesheet" href="site.css?v=6">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -84,14 +84,14 @@
 
   <section class="research wrap" id="research">
     <div class="line-wrap">
-      <canvas id="lineart" role="img" aria-label="Line drawing of Bates reading, drawn in one continuous stroke"></canvas>
+      <canvas id="lineart" data-line="read" role="img" aria-label="Line drawing of Bates reading, drawn in one continuous stroke"></canvas>
     </div>
     <div class="research-copy">
       <h2>DirectDose so far</h2>
       <ul class="impact">
         <li class="sk"><b data-count="30" data-pre="~">~30</b><span>nations</span></li>
         <li class="sk"><b data-count="150" data-suf="k+">150k+</b><span>people reached</span></li>
-        <li class="sk"><b data-count="1" data-suf="M+">1M+</b><span>meals tracked</span></li>
+        <li class="sk"><b data-count="1000" data-suf="k+" data-big="1M+">1M+</b><span>meals tracked</span></li>
         <li class="sk"><b data-count="11" data-pre="$" data-suf="k+">$11k+</b><span>raised</span></li>
       </ul>
     </div>
@@ -208,6 +208,12 @@
       </div>
     </section>
 
+    <div class="wrap guide-end">
+      <canvas class="end-line" data-line="hop" role="img" aria-label="Line drawing of Bates jumping for joy"></canvas>
+      <div><h3>That's the whole guide.</h3>
+        <p class="go"><a class="btn sk primary" href="#bolus">Meal dose</a><a class="btn sk" href="#ratio">Find my ratio</a></p></div>
+    </div>
+
     <div class="wrap outro">
       <details class="sources" id="refs">
         <summary>References (12)</summary>
@@ -221,7 +227,7 @@
 <!-- ================= BOLUS ================= -->
 <section class="view" data-view="bolus" hidden>
   <div class="wrap tool">
-    <div class="tool-head"><h1>Meal dose</h1></div>
+    <div class="tool-head"><h1>Meal dose</h1><canvas class="head-line" data-line="wave" data-weight="1.4" data-ink="rgba(0,108,104,.7)" aria-hidden="true"></canvas></div>
     <div class="tool-grid">
       <div class="steps">
         <fieldset class="card">
@@ -304,7 +310,7 @@
 <!-- ================= BASAL ================= -->
 <section class="view" data-view="basal" hidden>
   <div class="wrap tool">
-    <div class="tool-head"><h1>Basal insulin</h1></div>
+    <div class="tool-head"><h1>Basal insulin</h1><canvas class="head-line" data-line="sit" data-weight="1.4" data-ink="rgba(0,108,104,.7)" aria-hidden="true"></canvas></div>
     <div class="seg big" role="tablist" id="basalMode"><button data-mode="t1" class="on">Type 1</button><button data-mode="t2">Type 2</button></div>
 
     <div class="tool-grid" data-basal="t1">
@@ -373,7 +379,7 @@
 <!-- ================= RATIO FINDER ================= -->
 <section class="view" data-view="ratio" hidden>
   <div class="wrap tool">
-    <div class="tool-head"><h1>Find my ratio</h1></div>
+    <div class="tool-head"><h1>Find my ratio</h1><canvas class="head-line" data-line="think" data-weight="1.4" data-ink="rgba(0,108,104,.7)" aria-hidden="true"></canvas></div>
     <div class="tool-grid">
       <div class="steps" id="ratioApp"></div>
       <aside class="result card sk">
@@ -402,7 +408,7 @@
 <!-- ================= MEALS ================= -->
 <section class="view" data-view="meals" hidden>
   <div class="wrap tool">
-    <div class="tool-head"><h1>Today's meals</h1><button class="btn sk small phone-only" id="mealJump" type="button">My goals and filters</button></div>
+    <div class="tool-head"><h1>Today's meals</h1><button class="btn sk small phone-only" id="mealJump" type="button">My goals and filters</button><canvas class="head-line" data-line="thumbs" data-weight="1.4" data-ink="rgba(0,108,104,.7)" aria-hidden="true"></canvas></div>
     <div class="tool-grid">
       <div class="steps">
         <div class="card goals" id="mealGoals"></div>
@@ -445,7 +451,7 @@
   <div class="wrap tool">
     <div class="tool-head"><h1>About</h1></div>
     <div class="about-top">
-      <figure class="shot big"><img src="about-thatha.webp" alt="Guru Thatha seated in an armchair, smiling" width="1100" height="1139"><figcaption>Guru Thatha</figcaption></figure>
+      <figure class="shot big"><div class="reveal"><img id="thathaPhoto" src="about-thatha.webp" alt="Guru Thatha seated in an armchair, smiling" width="1100" height="1139"><canvas data-line="thatha" data-fit="1" data-reveal="#thathaPhoto" data-weight=".9" aria-hidden="true"></canvas></div><figcaption>Guru Thatha</figcaption></figure>
       <div class="about-copy">
         <h2>It started with my grandfather.</h2>
         <p>Guru Thatha nearly died from diabetic ketoacidosis after an insulin dosing error.</p>
@@ -564,19 +570,20 @@
 <canvas id="confetti" aria-hidden="true"></canvas>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-<script src="foods.js?v=5"></script>
-<script src="foods2.js?v=5"></script>
-<script src="meals-data.js?v=5"></script>
-<script src="lineart.js?v=5"></script>
-<script src="bates.js?v=5"></script>
-<script src="app.js?v=5"></script>
-<script src="story.js?v=5"></script>
-<script src="ratio.js?v=5"></script>
-<script src="meals.js?v=5"></script>
-<script src="auth.js?v=5"></script>
-<script src="i18n.js?v=5"></script>
-<script src="inciteful.js?v=5"></script>
+<script src="anime.min.js"></script>
+<script src="foods.js?v=6"></script>
+<script src="foods2.js?v=6"></script>
+<script src="meals-data.js?v=6"></script>
+<script src="lineart.js?v=6"></script>
+<script src="bates.js?v=6"></script>
+<script src="app.js?v=6"></script>
+<script src="lines.js?v=6"></script>
+<script src="story.js?v=6"></script>
+<script src="ratio.js?v=6"></script>
+<script src="meals.js?v=6"></script>
+<script src="auth.js?v=6"></script>
+<script src="i18n.js?v=6"></script>
+<script src="inciteful.js?v=6"></script>
 <script>DD.start();</script>
 <script src="https://widget.incitefulmed.com/incitefulmed-widget.js" data-partner-id="direct-dose" async onerror="window.__imFail=1"></script>
 </body>
