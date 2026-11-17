@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DirectDose</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap" rel="stylesheet">
+<link rel="icon" href="img/dd-logo.png">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <filter id="rough" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.2"/></filter>
+  <filter id="rough2" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".02" numOctaves="2" seed="9" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4"/></filter>
+</defs></svg>
+
+<header class="nav">
+  <a class="brand" href="#home" aria-label="DirectDose home"><span class="dd-logo" aria-hidden="true"></span><span class="notranslate" translate="no">DirectDose</span></a>
+  <nav class="links" id="links" aria-label="Main">
+    <span class="ink" id="ink" aria-hidden="true"></span>
+    <a href="#bolus" data-nav="bolus">Meal dose</a>
+    <a href="#ratio" data-nav="ratio">My ratio</a>
+    <a href="#basal" data-nav="basal">Basal</a>
+    <a href="#meals" data-nav="meals">Meals</a>
+    <a href="#guide" data-nav="guide">Guide</a>
+    <a href="#about" data-nav="about">About</a>
+  </nav>
+  <div class="nav-tools">
+    <button class="globe" id="globe" aria-label="Change language" aria-haspopup="true">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12"/><path d="M4 16h24M16 4c-5 4-5 20 0 24M16 4c5 4 5 20 0 24M6.500 9.500h19M6.500 22.500h19"/></svg>
+    </button>
+    <a class="avatar" id="acct" href="#account" aria-label="Sign in"><img id="acctImg" src="img/bates-face.webp" alt="" width="44" height="44"></a>
+    <div class="lang-menu" id="langMenu" hidden>
+      <label class="sr" for="langFind">Search languages</label>
+      <input id="langFind" type="text" placeholder="Search languages" autocomplete="off">
+      <ul id="langList"></ul>
+      <p class="fine">Machine translation by Google. Check doses in a language you read well.</p>
+    </div>
+  </div>
+</header>
+<p class="medbar">Built on published medical research. Not medical advice. Always follow your care team.</p>
+<div id="gt" class="notranslate" aria-hidden="true"></div>
+
+<main id="main">
+
+<!-- ================= HOME ================= -->
+<section class="view" data-view="home">
+
+  <div class="hero wrap">
+    <div class="hero-copy">
+      <h1>Make diabet<wbr>-easy for me!</h1>
+      <div class="tiles">
+        <a class="tile sk" href="#bolus">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="27" r="15"/><path d="M14 27h20M24 17v20M19 6h10"/></svg>
+          <b>Meal dose</b>
+        </a>
+        <a class="tile sk" href="#ratio">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="14" cy="14" r="6"/><circle cx="34" cy="34" r="6"/><path d="M38 8 10 40"/></svg>
+          <b>My ratio</b>
+        </a>
+        <a class="tile sk" href="#basal">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M4 30c7 0 7-10 14-10s7 10 14 10 7-10 12-10M4 41h40"/></svg>
+          <b>Basal</b>
+        </a>
+        <a class="tile sk" href="#meals">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="26" cy="26" r="15"/><circle cx="26" cy="26" r="8"/><path d="M6 6v14M3 6v7a3 3 0 0 0 6 0V6M6 20v22"/></svg>
+          <b>Meals</b>
+        </a>
+      </div>
+      <div class="press">
+        <span class="kicker">As seen in</span>
+        <img src="img/press-forbes.webp" alt="Forbes" style="height:30px">
+        <img src="img/press-medium.webp" alt="Medium" style="height:28px">
+        <img src="img/press-record.webp" alt="The Record North Shore" style="height:40px">
+      </div>
+    </div>
+    <div class="hero-bates">
+      <div class="bubble" id="heroBubble" aria-live="polite">Hi, I'm Bates.</div>
+      <canvas class="bates" id="heroBates" data-bates="wave" role="img" aria-label="Bates, a green goblin kid in a striped shirt, waving" tabindex="0"></canvas>
+    </div>
+  </div>
+
+  <section class="research wrap" id="research">
+    <div class="line-wrap">
+      <canvas id="lineart" role="img" aria-label="Line drawing of Bates reading, drawn in one continuous stroke"></canvas>
+    </div>
+    <div class="research-copy">
+      <h2>Every number has a source.</h2>
+      <ul class="facts">
+        <li><b>12</b><span>peer-reviewed papers behind the guide</span></li>
+        <li><b>7</b><span>days of test meals to find the carb ratio that fits you</span></li>
+        <li><b>1</b><span>rule: your care team's plan comes first</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="partners" aria-label="Partners">
+    <p class="kicker wrap">Our partners</p>
+    <div class="marquee" id="marquee">
+      <div class="track" id="track">
+        <span class="logo"><img src="img/logo-nt.webp" alt="NT partner logo" style="height:64px"></span>
+        <span class="logo"><img src="img/logo-uic.webp" alt="UIC" style="height:66px"></span>
+        <span class="logo"><img src="img/logo-chronically-me.webp" alt="Chronically Me" style="height:44px"></span>
+        <span class="logo"><img src="img/logo-t1international.webp" alt="T1International" style="height:64px"></span>
+        <span class="logo"><img src="img/logo-hitting-the-wall.webp" alt="Hitting the Wall" style="height:74px;border-radius:6px"></span>
+        <span class="logo"><img src="img/logo-inciteful-med.webp" alt="Inciteful Med" style="height:44px"></span>
+        <span class="logo"><img src="img/logo-flitting-hummingbird.webp" alt="Flitting Hummingbird" style="height:60px"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WALKTHROUGH ============ -->
+  <div class="guide" id="guideTop">
+    <div class="guide-head wrap">
+      <h2>Diabetes, start to finish.</h2>
+      <div class="dot-grid" id="dotGrid" aria-hidden="true"></div>
+    </div>
+
+    <section class="scene wrap" data-name="Fuel">
+      <div class="copy"><span class="num">01</span><h3>Sugar is fuel.</h3>
+        <p>Glucose rides your blood. Insulin lets it into your cells. In diabetes that handoff breaks, and sugar piles up. <a class="ref" data-ref="1">1</a></p></div>
+      <div class="art"><svg data-art="fuel" viewBox="0 0 480 300"></svg></div>
+    </section>
+
+    <section class="scene wrap flip" data-name="Types">
+      <div class="copy"><span class="num">02</span><h3>Two ways it breaks.</h3>
+        <dl class="duo"><div><dt>Type 1</dt><dd>Little or no insulin is made. Insulin is required.</dd></div><div><dt>Type 2</dt><dd>Insulin stops working well. Lifestyle, medication, sometimes insulin.</dd></div></dl></div>
+      <div class="art"><svg data-art="types" viewBox="0 0 480 300"></svg></div>
+    </section>
+
+    <section class="scene wrap" data-name="Food">
+      <div class="copy"><span class="num">03</span><h3>Three nutrients. Three speeds.</h3>
+        <p>Carbs hit hardest and fastest. Fat delays the rise. Protein can show up hours later. <a class="ref" data-ref="2">2</a></p></div>
+      <div class="art"><svg data-art="speeds" viewBox="0 0 480 300"></svg></div>
+    </section>
+
+    <section class="scene wrap flip" data-name="Carbs">
+      <div class="copy"><span class="num">04</span><h3>Not all carbs act alike.</h3>
+        <p>Juice beats whole fruit to your blood. White bread can spike like sugar. Fiber slows everything.</p>
+        <p class="stat"><b>20%</b> lower glucose response from low-GI meals with the same carbs. <a class="ref" data-ref="3">3</a></p></div>
+      <div class="art"><svg data-art="carbs" viewBox="0 0 480 300"></svg></div>
+    </section>
+
+    <section class="scene wrap" data-name="Plate">
+      <div class="copy"><span class="num">05</span><h3>What's on your plate changes the ride.</h3>
+        <p>Rice by itself turns into sugar fast. Add chicken, beans, or veggies and the sugar arrives slower. Greasy food like pizza is sneaky: the sugar shows up hours later. <a class="ref" data-ref="2">2</a></p>
+        <div class="pair-pick" role="group" aria-label="What's on the plate">
+          <button class="pill on" data-pair="alone">Rice alone</button>
+          <button class="pill" data-pair="protein">+ chicken</button>
+          <button class="pill" data-pair="fat">+ greasy food</button>
+          <button class="pill" data-pair="fiber">+ beans, veggies</button>
+        </div>
+        <p class="said" id="pairText" aria-live="polite"></p>
+        <p class="aside">Eating your veggies and protein first, then the carbs, can make the rise smaller. It never replaces insulin. <a class="ref" data-ref="7">7</a></p></div>
+      <div class="art"><svg id="stPlate" class="story" viewBox="0 0 480 300" role="img" aria-label="Sugar pieces travel from a plate into the blood, faster or slower depending on the meal"></svg></div>
+    </section>
+
+    <section class="scene wrap flip" data-name="You">
+      <div class="copy"><span class="num">06</span><h3>Your body is one of a kind.</h3>
+        <p class="stat"><b id="mealCount">46,898</b> meals. Scientists checked that many in 800 people. The same food raised everyone's blood sugar by a different amount. <a class="ref" data-ref="8">8</a></p>
+        <p>Sleep, stress, being sick, and exercise change your numbers too. Write down what you eat and what your meter says. After a few days you'll see your own pattern.</p>
+        <p class="go"><a class="btn sk" href="#ratio">Find my ratio</a></p></div>
+      <div class="art"><svg id="stYou" class="story" viewBox="0 0 480 300" role="img" aria-label="Three kids eat the same banana and their blood sugar rises by different amounts"></svg></div>
+    </section>
+
+    <section class="scene wrap" data-name="Insulin">
+      <div class="copy"><span class="num">07</span><h3>Insulin has two jobs.</h3>
+        <p><b>Basal</b> is a slow, steady drip. It works all day and all night, even while you sleep.</p>
+        <p><b>Bolus</b> is a quick extra dose. You take it for meals, or to bring a high number down. Too much can make your blood sugar drop dangerously low. <a class="ref" data-ref="9">9</a></p>
+        <p class="go"><a class="btn sk" href="#basal">Basal tool</a><a class="btn sk" href="#bolus">Meal dose tool</a></p></div>
+      <div class="art"><svg id="stJobs" class="story" viewBox="0 0 480 300" role="img" aria-label="Basal insulin drips slowly day and night. Bolus insulin arrives in a quick burst at a meal"></svg></div>
+    </section>
+
+    <section class="scene wrap flip" data-name="Timing">
+      <div class="copy"><span class="num">08</span><h3>Insulin needs a head start.</h3>
+        <p>Food reaches your blood fast. Insulin from a shot is slower. That's why many people take it 10 to 20 minutes before they eat. <a class="ref" data-ref="10">10</a></p>
+        <div class="pair-pick" role="group" aria-label="Who starts first">
+          <button class="pill on" data-race="together">Start together</button>
+          <button class="pill" data-race="early">Insulin goes first</button>
+        </div>
+        <p class="aside warn">If you take insulin and then don't eat soon, you can go low. Use the timing your care team gave you.</p></div>
+      <div class="art"><svg id="stRace" class="story" viewBox="0 0 480 300" role="img" aria-label="A race to your blood between food and insulin"></svg></div>
+    </section>
+
+    <section class="scene wrap" data-name="Math">
+      <div class="copy"><span class="num">09</span><h3>Let a calculator do the math.</h3>
+        <p>A dose takes a few steps of math, and one slip changes the answer.</p>
+        <p>Doctors use a blood test called <b>A1C</b>. It shows your average blood sugar over about 3 months. Lower is usually better. In a study of 218 adults, more people improved their A1C with a dose calculator than with math by hand. <a class="ref" data-ref="11">11</a></p>
+        <p class="aside">A calculator only knows what you type in. Use the settings your doctor gave you.</p></div>
+      <div class="art"><svg id="stCalc" class="story" viewBox="0 0 480 300" role="img" aria-label="About 6 in 10 people improved with a calculator. About 3 in 10 improved doing the math by hand"></svg></div>
+    </section>
+
+    <section class="scene wrap flip" data-name="Range">
+      <div class="copy"><span class="num">10</span><h3>Stay in the band.</h3>
+        <p>Doctors like blood sugar to stay between 70 and 180 most of the day. Under 70 is low and needs fast sugar. Over 180 is high.</p>
+        <p>For many adults the goal is more than 70% of the day in the band, and less than 4% under 70. <a class="ref" data-ref="12">12</a></p>
+        <p class="aside">Targets differ for kids, older adults, and pregnancy.</p></div>
+      <div class="art">
+        <svg data-art="range" viewBox="0 0 480 240"></svg>
+        <div class="tir">
+          <label for="tirRange" class="sr">Try a reading</label>
+          <input type="range" id="tirRange" min="40" max="300" value="112">
+          <p class="tir-out" aria-live="polite"><b id="tirVal">112</b> mg/dL <span id="tirMsg"></span></p>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap outro">
+      <details class="sources" id="refs">
+        <summary>References (12)</summary>
+        <ol id="refList"></ol>
+      </details>
+      <p class="disclaimer">DirectDose is built on published medical research, but it is not medical advice and can't replace your doctor. Follow your prescribed plan and talk to your diabetes care team before changing a dose or its timing.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BOLUS ================= -->
+<section class="view" data-view="bolus" hidden>
+  <div class="wrap tool">
+    <div class="tool-head"><h1>Meal dose</h1></div>
+    <div class="tool-grid">
+      <div class="steps">
+        <fieldset class="card">
+          <legend><span class="n">1</span>Prescribed settings</legend>
+          <div class="seg" role="group" aria-label="Glucose units"><button data-unit="mg" class="on">mg/dL</button><button data-unit="mmol">mmol/L</button></div>
+          <div class="fields">
+            <label>Carb ratio<span class="inp"><em>1 :</em><input id="bIcr" type="number" inputmode="decimal" min="1" max="150" step="0.5" placeholder="10"><em>g</em></span></label>
+            <label>Correction factor<span class="inp"><input id="bIsf" type="number" inputmode="decimal" step="any" placeholder="50"><em class="gu">mg/dL</em></span></label>
+            <label>Target<span class="inp"><input id="bTarget" type="number" inputmode="decimal" step="any" placeholder="110"><em class="gu">mg/dL</em></span></label>
+          </div>
+          <div class="row-between">
+            <button class="btn sk small" id="bExample">Try an example</button>
+            <button class="btn sk small" id="bSaveSettings">Save settings</button>
+          </div>
+          <p class="fine" id="bIcrNote"></p>
+          <p class="example-flag" id="bExampleFlag" hidden>Example numbers. Not yours.</p>
+        </fieldset>
+
+        <fieldset class="card">
+          <legend><span class="n">2</span>Right now</legend>
+          <div class="fields two">
+            <label>Blood sugar<span class="inp"><input id="bBg" type="number" inputmode="decimal" step="any" placeholder="Reading"><em class="gu">mg/dL</em></span></label>
+            <label>Insulin on board<span class="inp"><input id="bIob" type="number" inputmode="decimal" min="0" step="0.1" placeholder="0"><em>units</em></span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="card">
+          <legend><span class="n">3</span>Your meal</legend>
+          <div class="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="m16.5 16.5 4.5 4.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+            <input id="foodQ" type="text" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="foodDrop" aria-autocomplete="list" placeholder="Type a food, like rice or pizza">
+            <ul id="foodDrop" class="drop" role="listbox" hidden></ul>
+          </div>
+          <ul class="plate" id="plate"></ul>
+          <p class="plate-empty" id="plateEmpty">Nothing on the plate yet.</p>
+          <div class="totals" id="totals">
+            <div><b id="tCarb">0</b><span>g carbs</span></div>
+            <div><b id="tFiber">0</b><span>g fiber</span></div>
+            <div><b id="tProt">0</b><span>g protein</span></div>
+            <div><b id="tFat">0</b><span>g fat</span></div>
+          </div>
+          <small class="fine">Typical values per serving. Can't find a food? Keep typing: the search also checks the USDA database, or add your own carbs.</small>
+        </fieldset>
+      </div>
+
+      <aside class="result card sk" id="bResult">
+        <p class="result-label">Suggested dose</p>
+        <div class="dose"><b id="bDose">–</b><span>units</span></div>
+        <div class="seg small" role="group" aria-label="Rounding"><button data-round="0.5" class="on">½ unit</button><button data-round="1">1 unit</button><button data-round="0.1">0.1 pump</button></div>
+        <dl class="break" id="bBreak">
+          <div><dt>Food</dt><dd id="bkFood">–</dd></div>
+          <div><dt>Correction</dt><dd id="bkCorr">–</dd></div>
+          <div><dt>On board</dt><dd id="bkIob">–</dd></div>
+        </dl>
+        <p class="math" id="bMath"></p>
+        <div class="says">
+          <canvas class="bates" id="bBates" data-bates="think" role="img" aria-label="Bates"></canvas>
+          <div class="bubble side" id="bBubble" aria-live="polite"></div>
+        </div>
+        <button class="btn sk primary" id="bLog" disabled>Save to my log</button>
+        <p class="fine" id="bLogNote"></p>
+      </aside>
+    </div>
+
+    <details class="sources">
+      <summary>How this is calculated</summary>
+      <p><b>Dose</b> = carbs ÷ carb ratio + (blood sugar − target) ÷ correction factor − insulin on board, rounded down. Under 70 mg/dL there is no dose.</p>
+      <ul>
+        <li>Walsh, Roberts, Bailey. Guidelines for optimal bolus calculator settings in adults. <i>J Diabetes Sci Technol</i>, 2011. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3045234" target="_blank" rel="noopener">Read</a></li>
+        <li>Ziegler et al. Use of an insulin bolus advisor improves glycemic control. <i>Diabetes Care</i>, 2013. <a href="https://doi.org/10.2337/dc13-0251" target="_blank" rel="noopener">Read</a></li>
+        <li>Bell et al. Impact of fat, protein, and glycemic index on postprandial glucose control. <i>Diabetes Care</i>, 2015. <a href="https://doi.org/10.2337/dc15-0100" target="_blank" rel="noopener">Read</a></li>
+        <li>American Diabetes Association. Standards of Care in Diabetes 2025, Section 6. <a href="https://doi.org/10.2337/dc25-S006" target="_blank" rel="noopener">Read</a></li>
+        <li>USDA FoodData Central. <a href="https://fdc.nal.usda.gov/" target="_blank" rel="noopener">Open</a></li>
+      </ul>
+      <p class="disclaimer">This tool applies the settings you enter. It doesn't replace your care team.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ================= BASAL ================= -->
+<section class="view" data-view="basal" hidden>
+  <div class="wrap tool">
+    <div class="tool-head"><h1>Basal insulin</h1></div>
+    <div class="seg big" role="tablist" id="basalMode"><button data-mode="t1" class="on">Type 1</button><button data-mode="t2">Type 2</button></div>
+
+    <div class="tool-grid" data-basal="t1">
+      <div class="steps">
+        <fieldset class="card">
+          <legend><span class="n">1</span>Total daily insulin</legend>
+          <div class="seg" id="t1Know"><button data-k="yes" class="on">I know it</button><button data-k="no">Estimate from weight</button></div>
+          <div class="fields two" id="t1TddBox">
+            <label>Total daily dose<span class="inp"><input id="t1Tdd" type="number" inputmode="decimal" min="1" step="0.5" placeholder="40"><em>units/day</em></span></label>
+          </div>
+          <div class="fields two" id="t1WtBox" hidden>
+            <label>Weight<span class="inp"><input id="t1Wt" type="number" inputmode="decimal" min="1" step="any" placeholder="70"><button class="unit-toggle" data-wt="t1" type="button">kg</button></span></label>
+          </div>
+        </fieldset>
+      </div>
+      <aside class="result card sk">
+        <p class="result-label">Estimated basal</p>
+        <div class="dose"><b id="t1Basal">–</b><span>units/day</span></div>
+        <dl class="break">
+          <div><dt>Pump rate</dt><dd id="t1Rate">–</dd></div>
+          <div><dt>Left for boluses</dt><dd id="t1Bolus">–</dd></div>
+          <div><dt>Total daily dose</dt><dd id="t1TddOut">–</dd></div>
+        </dl>
+        <div class="says"><canvas class="bates" id="t1Bates" data-bates="sit" role="img" aria-label="Bates"></canvas><div class="bubble side" id="t1Bubble" aria-live="polite"></div></div>
+      </aside>
+    </div>
+
+    <div class="tool-grid" data-basal="t2" hidden>
+      <div class="steps">
+        <fieldset class="card">
+          <legend><span class="n">1</span>Starting basal</legend>
+          <div class="fields two">
+            <label>Weight<span class="inp"><input id="t2Wt" type="number" inputmode="decimal" min="1" step="any" placeholder="85"><button class="unit-toggle" data-wt="t2" type="button">kg</button></span></label>
+          </div>
+        </fieldset>
+        <fieldset class="card">
+          <legend><span class="n">2</span>Already on basal?</legend>
+          <div class="fields">
+            <label>Current dose<span class="inp"><input id="t2Dose" type="number" inputmode="decimal" min="0" step="1" placeholder="16"><em>units</em></span></label>
+            <label>Fasting average<span class="inp"><input id="t2Fast" type="number" inputmode="decimal" step="any" placeholder="3 mornings"><em>mg/dL</em></span></label>
+            <label>Fasting target<span class="inp"><input id="t2Lo" type="number" value="80" aria-label="Target low"><em>to</em><input id="t2Hi" type="number" value="130" aria-label="Target high"></span></label>
+          </div>
+          <label class="tick"><input type="checkbox" id="t2Hypo"> I had a low (under 70) this week</label>
+        </fieldset>
+      </div>
+      <aside class="result card sk">
+        <p class="result-label">Guideline starting dose</p>
+        <div class="dose"><b id="t2Start">10</b><span>units/day</span></div>
+        <dl class="break">
+          <div><dt>Flat start</dt><dd>10 units</dd></div>
+          <div><dt>By weight</dt><dd id="t2Range">0.1–0.2 units/kg</dd></div>
+          <div><dt>Titration</dt><dd id="t2Tit">–</dd></div>
+        </dl>
+        <div class="says"><canvas class="bates" id="t2Bates" data-bates="sit" role="img" aria-label="Bates"></canvas><div class="bubble side" id="t2Bubble" aria-live="polite"></div></div>
+      </aside>
+    </div>
+
+    <details class="sources">
+      <summary>Where these numbers come from</summary>
+      <p>American Diabetes Association, Standards of Care in Diabetes 2025, Section 9. Type 1: a typical start is 0.5 units per kg per day, with about half as basal. Type 2: start at 10 units or 0.1 to 0.2 units per kg, then adjust in small steps toward the fasting target. <a href="https://doi.org/10.2337/dc25-S009" target="_blank" rel="noopener">Read</a></p>
+      <p class="disclaimer">Medically backed, not medical advice. Your prescriber sets your dose.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ================= RATIO FINDER ================= -->
+<section class="view" data-view="ratio" hidden>
+  <div class="wrap tool">
+    <div class="tool-head"><h1>Find my ratio</h1></div>
+    <div class="tool-grid">
+      <div class="steps" id="ratioApp"></div>
+      <aside class="result card sk">
+        <div class="says tall"><canvas class="bates" id="ratBates" data-bates="wave" role="img" aria-label="Bates"></canvas><div class="bubble side" id="ratBubble" aria-live="polite"></div></div>
+        <dl class="break">
+          <div><dt>On target</dt><dd>within 30 of your start</dd></div>
+          <div><dt>Ended high, twice</dt><dd>a bit more insulin</dd></div>
+          <div><dt>Ended low, twice</dt><dd>a bit less insulin</dd></div>
+          <div><dt>Went under 70</dt><dd>less insulin right away</dd></div>
+        </dl>
+        <p class="fine">Changes are small, about 10% at a time, and never more than 30% from where you started.</p>
+      </aside>
+    </div>
+    <details class="sources">
+      <summary>Where this method comes from</summary>
+      <ul>
+        <li>Start in range with no insulin on board, eat a low-fat counted meal, and compare the later reading with the starting one. A good ratio brings you back to within about 30 mg/dL. Change in small steps. Walsh and Roberts, Carb Factor checking tool. <a href="https://www.diabetesnet.com/diabetes-tools/insulin-dose-guide/check-carb-factor-or-icr/" target="_blank" rel="noopener">Read</a></li>
+        <li>Repeat the test to confirm before changing anything, and stop for any low. mySugr, How to test your insulin to carbohydrate ratio. <a href="https://www.mysugr.com/blog/how-test-your-insulin-carbohydrate-ratio-and-correction-factor" target="_blank" rel="noopener">Read</a></li>
+        <li>Starting estimate when there is no prescribed ratio (500 rule) and dosing formulas. Walsh, Roberts, Bailey. <i>J Diabetes Sci Technol</i>, 2010. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC2956816" target="_blank" rel="noopener">Read</a></li>
+      </ul>
+      <p class="disclaimer">Medically backed, not medical advice. Tell your care team before you change how you dose, and share these results with them.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ================= MEALS ================= -->
+<section class="view" data-view="meals" hidden>
+  <div class="wrap tool">
+    <div class="tool-head"><h1>Today's meals</h1></div>
+    <div class="tool-grid">
+      <div class="steps">
+        <div class="meal-list" id="mealPlan"></div>
+        <p class="fine" id="mealTotals"></p>
+      </div>
+      <aside class="result card sk">
+        <div class="says"><canvas class="bates" id="mealBates" data-bates="point" role="img" aria-label="Bates"></canvas><div class="bubble side" id="mealBubble" aria-live="polite"></div></div>
+        <p class="fine" id="mealWhy"></p>
+        <p class="result-label">I eat</p>
+        <div class="pair-pick" id="mealDiet"></div>
+        <p class="result-label">I like</p>
+        <div class="pair-pick" id="mealCuisine"></div>
+        <label class="slider">Carbs per meal <b id="mealCarbOut">45 g</b>
+          <input type="range" id="mealCarb" min="30" max="75" step="5" value="45">
+        </label>
+        <button class="btn sk small" id="mealUsual" hidden></button>
+        <label>Foods to skip<span class="inp"><input id="mealAvoid" type="text" placeholder="mushroom, fish"></span></label>
+        <button class="btn sk primary" id="mealShuffle">New ideas</button>
+      </aside>
+    </div>
+    <details class="sources">
+      <summary>Why these meals</summary>
+      <ul>
+        <li>Half the plate non-starchy vegetables, a quarter protein, a quarter carbs. No single eating pattern fits everyone, so the plan follows your preferences. Evert et al., Nutrition Therapy for Adults With Diabetes or Prediabetes: A Consensus Report. <i>Diabetes Care</i>, 2019. <a href="https://doi.org/10.2337/dci19-0014" target="_blank" rel="noopener">Read</a></li>
+        <li>More fiber and whole grains improve blood sugar control. Reynolds et al. <i>PLOS Medicine</i>, 2020. <a href="https://doi.org/10.1371/journal.pmed.1003053" target="_blank" rel="noopener">Read</a></li>
+        <li>Fat and protein change the timing of the rise. Bell et al. <i>Diabetes Care</i>, 2015. <a href="https://doi.org/10.2337/dc15-0100" target="_blank" rel="noopener">Read</a></li>
+      </ul>
+      <p class="disclaimer">Medically backed, not medical advice. Meal values are estimates. A dietitian can build a plan around your health, culture, and budget.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ================= ABOUT ================= -->
+<section class="view" data-view="about" hidden>
+  <div class="wrap tool">
+    <div class="tool-head"><h1>About</h1></div>
+    <div class="about-top">
+      <figure class="shot big"><img src="img/about-thatha.webp" alt="Guru Thatha seated in an armchair, smiling" width="1100" height="1139"><figcaption>Guru Thatha</figcaption></figure>
+      <div class="about-copy">
+        <h2>It started with my grandfather.</h2>
+        <p>Guru Thatha nearly died from diabetic ketoacidosis after an insulin dosing error.</p>
+        <p>Insulin math is hard. One wrong number can put someone in the hospital. I started reading everything I could about how doses are worked out, and then I built the tool I wish he'd had.</p>
+        <p><span class="notranslate" translate="no">DirectDose</span> is free. It helps you count the carbs in a meal, work out a dose from the settings your doctor gave you, and find the carb ratio that fits your body.</p>
+        <p class="sign">Pratyay Rao, founder</p>
+        <p class="go"><a class="btn sk primary" href="#bolus">Try the meal dose tool</a><a class="btn sk" href="#guide">Read the guide</a></p>
+      </div>
+    </div>
+    <h2 class="about-h">Along the way</h2>
+    <div class="gallery">
+      <figure class="shot"><img src="img/about-win.webp" alt="Pratyay holding an award on stage with three judges" loading="lazy"><figcaption>Winning Pitch Night 2025</figcaption></figure>
+      <figure class="shot"><img src="img/about-pitch.webp" alt="Pratyay presenting DirectDose slides to a panel" loading="lazy"><figcaption>Pitching DirectDose</figcaption></figure>
+      <figure class="shot"><img src="img/about-schneider.webp" alt="Pratyay shaking hands in front of a DirectDose poster" loading="lazy"><figcaption>Meeting Rep. Schneider</figcaption></figure>
+      <figure class="shot"><img src="img/about-innovators.webp" alt="Pratyay with a mentor at Celebrating High School Innovators" loading="lazy"><figcaption>Celebrating High School Innovators</figcaption></figure>
+      <figure class="shot"><img src="img/about-service.webp" alt="Four students on a stage panel under a Service Leadership Panel slide" loading="lazy"><figcaption>Service Leadership Panel at HOBY</figcaption></figure>
+      <figure class="shot"><img src="img/about-hoby.webp" alt="Pratyay seated at a panel table" loading="lazy"><figcaption>Speaking at HOBY</figcaption></figure>
+      <figure class="shot"><img src="img/about-bengaluru.webp" alt="A large group standing in front of a flower-covered shrine" loading="lazy"><figcaption>With the community in Bengaluru</figcaption></figure>
+      <figure class="shot"><img src="img/about-mla.webp" alt="A group holding a DirectDose flyer and a bouquet" loading="lazy"><figcaption>Sharing DirectDose with MLA Priya Krishna</figcaption></figure>
+      <figure class="shot"><img src="img/about-stem.webp" alt="Students standing behind a table of glowing trophies" loading="lazy"><figcaption>Running STEM competitions</figcaption></figure>
+    </div>
+    <h2 class="about-h">In the press</h2>
+    <div class="gallery press-cards">
+      <figure class="shot"><img src="img/about-forbes.webp" alt="DirectDose featured in Forbes" loading="lazy"><figcaption>Forbes</figcaption></figure>
+      <figure class="shot"><img src="img/about-medium.webp" alt="DirectDose highlighted on Medium by WIT Magazine" loading="lazy"><figcaption>Medium, WIT Magazine</figcaption></figure>
+      <figure class="shot"><img src="img/about-record.webp" alt="The Record North Shore feature" loading="lazy"><figcaption>The Record North Shore</figcaption></figure>
+    </div>
+    <p class="disclaimer"><span class="notranslate" translate="no">DirectDose</span> is built on published medical research. It is an education and math tool, not medical advice, and it is not a substitute for your doctor.</p>
+  </div>
+</section>
+
+<!-- ================= ACCOUNT ================= -->
+<section class="view" data-view="account" hidden>
+  <div class="wrap tool narrow">
+    <div id="authBox">
+      <div class="auth">
+        <canvas class="bates auth-bates" data-bates="wave" role="img" aria-label="Bates waving"></canvas>
+        <div class="card sk auth-card">
+          <h1 id="authTitle">Sign in</h1>
+          <button class="btn sk provider" id="gBtn" type="button">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="#4285F4" d="M23 12.3c0-.8-.1-1.6-.2-2.3H12v4.4h6.2a5.300 5.300 0 0 1-2.300 3.500v2.900h3.700c2.200-2 3.400-5 3.400-8.500Z"/><path fill="#34A853" d="M12 23.500c3.100 0 5.700-1 7.600-2.800l-3.700-2.900c-1 .7-2.300 1.100-3.900 1.100-3 0-5.500-2-6.400-4.700H1.800v3A11.500 11.500 0 0 0 12 23.500Z"/><path fill="#FBBC05" d="M5.600 14.200a6.900 6.900 0 0 1 0-4.400v-3H1.800a11.500 11.500 0 0 0 0 10.400l3.800-3Z"/><path fill="#EA4335" d="M12 5.100c1.700 0 3.200.6 4.400 1.700l3.300-3.300A11.500 11.500 0 0 0 1.800 6.800l3.800 3c.9-2.700 3.400-4.700 6.400-4.700Z"/></svg>
+            Continue with Google
+          </button>
+          <p class="form-msg" id="provMsg" hidden></p>
+          <div class="or"><span>or</span></div>
+          <form id="authForm" novalidate>
+            <label id="nameRow" hidden>Name<input id="aName" type="text" autocomplete="name"></label>
+            <label>Email<input id="aEmail" type="email" autocomplete="email" required></label>
+            <label id="passRow">Password<input id="aPass" type="password" autocomplete="current-password" minlength="8"></label>
+            <p class="form-msg" id="authErr" hidden></p>
+            <button class="textlink" id="resend" type="button" hidden>Send the email again</button>
+            <button class="btn sk primary" type="submit" id="authSubmit">Sign in</button>
+          </form>
+          <p class="switch"><span id="switchText">New here?</span> <button class="textlink" id="authSwitch" type="button">Create an account</button> <button class="textlink quiet" id="forgot" type="button" hidden>Forgot password?</button></p>
+          <p class="fine" id="authMode"></p>
+        </div>
+      </div>
+    </div>
+
+    <div id="recoverBox" hidden>
+      <form class="card sk auth-card" id="newPassForm" novalidate>
+        <h1>New password</h1>
+        <label>Choose a new password<input id="newPass" type="password" autocomplete="new-password" minlength="8"></label>
+        <p class="form-msg" id="newPassMsg" hidden></p>
+        <button class="btn sk primary" type="submit">Save password</button>
+      </form>
+    </div>
+
+    <div id="profileBox" hidden>
+      <div class="profile-head">
+        <canvas class="bates" data-bates="hop" id="pBates" role="img" aria-label="Bates jumping for joy"></canvas>
+        <div><h1 id="pHello">Hi</h1><p class="lede" id="pEmail"></p></div>
+        <button class="btn sk small" id="signOut">Sign out</button>
+      </div>
+      <div class="card">
+        <h4>My settings</h4>
+        <div class="fields">
+          <label>Carb ratio<span class="inp"><em>1 :</em><input id="pIcr" type="number" step="0.5" min="1"><em>g</em></span></label>
+          <label>Correction factor<span class="inp"><input id="pIsf" type="number" step="any"><em>mg/dL</em></span></label>
+          <label>Target<span class="inp"><input id="pTarget" type="number" step="any"><em>mg/dL</em></span></label>
+        </div>
+        <div class="row-between"><span class="fine" id="pSaved"></span><span class="go"><a class="btn sk small" href="#ratio">Ratio test</a><button class="btn sk primary small" id="pSave">Save</button></span></div>
+      </div>
+      <div class="card">
+        <div class="row-between"><h4>Dose log</h4><button class="btn sk small" id="logClear">Clear log</button></div>
+        <ul class="log" id="logList"></ul>
+        <p class="plate-empty" id="logEmpty">No doses saved yet.</p>
+      </div>
+      <button class="danger-link" id="delAcct">Delete my data</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <canvas class="bates stroll" id="stroll" data-bates="walk" aria-hidden="true"></canvas>
+  <div class="wrap foot-in">
+    <span class="brand small"><img src="img/dd-logo.png" alt="" width="36" height="30"><span class="notranslate" translate="no">DirectDose</span></span>
+    <span>Built on published medical research. Not medical advice.</span>
+    <span class="foot-links"><a href="#bolus">Meal dose</a><a href="#ratio">My ratio</a><a href="#basal">Basal</a><a href="#meals">Meals</a><a href="#guide">Guide</a><a href="#about">About</a><a href="#account">Account</a></span>
+  </div>
+</footer>
+
+<div class="walker" id="walker" aria-hidden="true">
+  <div class="walker-track" id="walkerTrack"></div>
+  <div class="walker-who" id="walkerWho"><span id="walkerLabel">Fuel</span><canvas class="bates" id="walkerBates" data-bates="walk"></canvas></div>
+</div>
+<!-- IncitefulMed: the widget adds its own "Health Answers" tab on the right edge. Bates points at it. -->
+<div class="im-call" id="imCall" hidden>
+  <div class="bubble"><button class="im-x" id="imX" aria-label="Hide this tip">×</button><button class="im-go" id="imGo">Want more research-backed medical advice? Try <span class="notranslate" translate="no">IncitefulMed</span>!</button></div>
+  <canvas class="bates" id="imBates" data-bates="point" role="img" aria-label="Bates pointing at the IncitefulMed tab"></canvas>
+</div>
+<a class="im-tab" id="imTab" href="https://incitefulmed.com/?utm_source=direct-dose" target="_blank" rel="noopener" hidden>Health Answers</a>
+<canvas id="confetti" aria-hidden="true"></canvas>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<script src="foods.js"></script>
+<script src="foods2.js"></script>
+<script src="lineart.js"></script>
+<script src="bates.js"></script>
+<script src="app.js"></script>
+<script src="story.js"></script>
+<script src="ratio.js"></script>
+<script src="meals.js"></script>
+<script src="auth.js"></script>
+<script src="i18n.js"></script>
+<script src="inciteful.js"></script>
+<script>DD.start();</script>
+<script src="https://widget.incitefulmed.com/incitefulmed-widget.js" data-partner-id="direct-dose" async onerror="window.__imFail=1"></script>
+</body>
+</html>

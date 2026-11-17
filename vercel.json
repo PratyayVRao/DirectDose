@@ -1,0 +1,30 @@
+{
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/calculator",
+      "destination": "/#bolus",
+      "permanent": false
+    },
+    {
+      "source": "/icr-calculator",
+      "destination": "/#ratio",
+      "permanent": false
+    },
+    {
+      "source": "/basal-calculator",
+      "destination": "/#basal",
+      "permanent": false
+    },
+    {
+      "source": "/about",
+      "destination": "/#about",
+      "permanent": false
+    },
+    {
+      "source": "/login",
+      "destination": "/#account",
+      "permanent": false
+    }
+  ]
+}
